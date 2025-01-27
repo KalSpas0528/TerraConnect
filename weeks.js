@@ -8,3 +8,9 @@
         Link News API for fetching live updates.
         Simplify map layers and connect all.
         */
+// Day 3
+                /* Map Creation: 1 week.
+                   API Integration: 2–3 weeks.
+                    Combining APIs: 2 weeks.
+                    Testing & Debugging: 1 week.   
+                
