@@ -13,4 +13,5 @@
                    API Integration: 2–3 weeks.
                     Combining APIs: 2 weeks.
                     Testing & Debugging: 1 week.   
-                
+//Day 4
+                I still need further research how to integrate news API’s a little further( I will go ahead and do further research)
