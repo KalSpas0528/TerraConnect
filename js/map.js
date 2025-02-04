@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Example: Adding a custom icon (optional)
   const customIcon = L.icon({
-    iconUrl: 'https://example.com/icon.png', // Replace with your custom icon URL
+    iconUrl: 'images/cars1.jpeg', // Replace with your custom icon URL
     iconSize: [25, 25],
     iconAnchor: [12, 25],
     popupAnchor: [0, -25]
