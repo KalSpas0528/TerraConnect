@@ -10,7 +10,16 @@ body {
 
 /* Responsiveness for smaller screens */
 @media (max-width: 768px) {
-#map {
-  height: 60vh; /* Reduce height on smaller screens */
+  #map {
+    height: 60vh; /* Reduce height on smaller screens */
+  }
 }
+
+/* Styling for the marker toggle button */
+.leaflet-bar button {
+  background: white;
+  border: none;
+  outline: none;
+  padding: 5px 10px;
+  cursor: pointer;
 }

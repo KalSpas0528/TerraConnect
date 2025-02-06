@@ -1,49 +1,77 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const map = L.map("map").setView([0, 0], 2);
+  // Initialize the map
+  const map = L.map("map").setView([20, 0], 2);
 
-  // Tile layer with noWrap to prevent map from showing edges
-  L.tileLayer("https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      noWrap: true, // Prevent wrapping of the map tiles
+  // Use CartoDB Positron tiles for English-only labels
+  L.tileLayer("https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png", {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
   }).addTo(map);
 
-  // Add zoom controls
-  L.control.zoom().addTo(map);
+  // Variable to toggle marker creation
+  let markersEnabled = true;
 
-  // Helper function: Check if the clicked location is within a country's rough bounding box.
-  function getCountryName(lat, lng) {
-    // United States (very rough bounding box)
-    if (lat >= 24.396308 && lat <= 49.384358 && lng >= -124.848974 && lng <= -66.885444) {
-      return "United States";
-    }
-    // United Kingdom (rough bounding box)
-    if (lat >= 49.9 && lat <= 60.9 && lng >= -8.6 && lng <= 1.8) {
-      return "United Kingdom";
-    }
-    // France (rough bounding box)
-    if (lat >= 41.3 && lat <= 51.1 && lng >= -5.1 && lng <= 9.6) {
-      return "France";
-    }
-    return null;
-  }
+  // Custom control to toggle marker creation
+  const markerToggleControl = L.control({ position: 'topright' });
+  markerToggleControl.onAdd = function(map) {
+    const div = L.DomUtil.create('div', 'leaflet-bar');
+    const button = L.DomUtil.create('button', '', div);
+    button.innerHTML = "Markers: ON";
+    button.style.backgroundColor = "white";
+    button.onclick = function(e) {
+      e.preventDefault();
+      markersEnabled = !markersEnabled;
+      button.innerHTML = markersEnabled ? "Markers: ON" : "Markers: OFF";
+    };
+    return div;
+  };
+  markerToggleControl.addTo(map);
 
-  // Add click event to place marker and show either a country name or coordinates
+  // Add click event to the map for marker creation (if enabled)
   map.on('click', function(e) {
+    // Do nothing if markers are disabled
+    if (!markersEnabled) return;
+    
     const lat = e.latlng.lat;
     const lng = e.latlng.lng;
     
-    // Check if the clicked location is within one of our defined countries
-    const country = getCountryName(lat, lng);
-    if (country) {
-      L.marker([lat, lng]).addTo(map)
-        .bindPopup("<b>Country:</b> " + country)
-        .openPopup();
-    } else {
-      L.marker([lat, lng]).addTo(map)
-        .bindPopup("<b>Clicked location:</b><br>Latitude: " + lat + "<br>Longitude: " + lng)
-        .openPopup();
-    }
+    // For demonstration, we simply add a marker with a popup of the coordinates.
+    L.marker([lat, lng]).addTo(map)
+      .bindPopup("<b>Clicked location:</b><br>Latitude: " + lat.toFixed(4) + "<br>Longitude: " + lng.toFixed(4))
+      .openPopup();
   });
+
+  // Load GeoJSON for countries (make sure you have a valid countries.geojson file in your project or update the URL)
+  fetch('countries.geojson')
+    .then(response => response.json())
+    .then(data => {
+      // Create a GeoJSON layer with the country boundaries
+      const geojsonLayer = L.geoJSON(data, {
+        style: function(feature) {
+          return {
+            color: 'blue',
+            weight: 1,
+            fillOpacity: 0
+          };
+        },
+        onEachFeature: function(feature, layer) {
+          // Add a click event to highlight the country boundary
+          layer.on('click', function(e) {
+            // Reset style for all countries
+            geojsonLayer.resetStyle();
+            // Highlight the clicked country
+            layer.setStyle({
+              color: 'red',
+              weight: 3
+            });
+            // Optionally, show the country name (if available in properties)
+            if (feature.properties && feature.properties.name) {
+              layer.bindPopup("<b>Country:</b> " + feature.properties.name).openPopup();
+            }
+          });
+        }
+      }).addTo(map);
+    })
+    .catch(err => console.error("Error loading countries GeoJSON:", err));
 
   // Example: Adding a custom icon (optional)
   const customIcon = L.icon({
@@ -55,6 +83,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Add custom marker on a specific location (for example: New York)
   L.marker([40.7128, -74.0060], { icon: customIcon }).addTo(map)
-    .bindPopup('Custom Marker at New York')
-    .openPopup();
+    .bindPopup('Custom Marker at New York');
 });
