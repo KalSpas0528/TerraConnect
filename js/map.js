@@ -129,5 +129,5 @@ document.addEventListener("DOMContentLoaded", () => {
     popupAnchor: [0, -25]
   });
   L.marker([40.7128, -74.0060], { icon: customIcon }).addTo(map)
-    .bindPopup("Custom Marker at New York", { maxWidth: 300 });
+    .bindPopup("Custom Lightning McQueen", { maxWidth: 150 });
 });
