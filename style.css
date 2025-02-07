@@ -30,7 +30,7 @@ body {
   background: #ddd;
 }
 
-/* Custom popup container (Leaflet default popup container can also be styled) */
+/* Popup container styling */
 .leaflet-popup-content-wrapper {
   max-width: 300px;
   padding: 10px;
@@ -42,10 +42,11 @@ body {
   margin: 0;
 }
 
-/* Popup content for country information */
+/* Country popup styling */
 .country-popup {
   text-align: center;
   padding: 5px;
+  overflow: hidden;
 }
 
 .country-popup h3 {
@@ -74,7 +75,7 @@ body {
 
 /* Wikipedia summary area styling */
 .wiki-summary {
-  max-height: 150px; /* Limit the height to prevent overflow */
+  max-height: 120px; /* Limit the height for readability */
   overflow-y: auto;
   margin-top: 8px;
   padding: 5px;

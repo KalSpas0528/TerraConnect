@@ -36,7 +36,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const lat = e.latlng.lat;
     const lng = e.latlng.lng;
     L.marker([lat, lng]).addTo(map)
-      .bindPopup(`<b>Clicked location:</b><br>Latitude: ${lat.toFixed(4)}<br>Longitude: ${lng.toFixed(4)}`, { maxWidth: 300 })
+      .bindPopup(
+        `<b>Clicked location:</b><br>Latitude: ${lat.toFixed(4)}<br>Longitude: ${lng.toFixed(4)}`,
+        { maxWidth: 300 }
+      )
       .openPopup();
   });
 
@@ -49,13 +52,13 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         onEachFeature: function (feature, layer) {
           layer.on("click", function () {
+            // Reset style for all countries
             geojsonLayer.resetStyle();
             layer.setStyle({ color: "red", weight: 3 });
 
             let countryName = feature.properties.name;
             countryName = standardizeCountryName(countryName);
 
-            // Popup content with a toggle button for the Wikipedia summary
             const popupContent = `
               <div class="country-popup">
                 <h3>${countryName}</h3>
@@ -64,7 +67,8 @@ document.addEventListener("DOMContentLoaded", () => {
               </div>
             `;
 
-            // Use maxWidth option to limit popup size
+            // Unbind any existing popup first, then bind and open a new popup
+            layer.unbindPopup();
             layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup();
           });
         }
@@ -104,9 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const country = button.getAttribute("data-country");
         const summaryDiv = popupNode.querySelector(".wiki-summary");
         if (summaryDiv.style.display === "none") {
-          // Fetch and display the Wikipedia summary, but limit text length if desired
           fetchWikipediaSummary(country).then(summary => {
-            // Optionally, trim the summary (here we display the full text; you could limit to e.g. 300 chars)
             summaryDiv.innerHTML = summary;
             summaryDiv.style.display = "block";
             button.textContent = "Hide Wikipedia Summary";
