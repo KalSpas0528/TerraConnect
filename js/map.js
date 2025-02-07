@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let markersEnabled = true;
   const markerToggleControl = L.control({ position: "topright" });
-
   markerToggleControl.onAdd = function () {
     const div = L.DomUtil.create("div", "leaflet-bar");
     const button = L.DomUtil.create("button", "", div);
@@ -37,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const lat = e.latlng.lat;
     const lng = e.latlng.lng;
     L.marker([lat, lng]).addTo(map)
-      .bindPopup(`<b>Clicked location:</b><br>Latitude: ${lat.toFixed(4)}<br>Longitude: ${lng.toFixed(4)}`)
+      .bindPopup(`<b>Clicked location:</b><br>Latitude: ${lat.toFixed(4)}<br>Longitude: ${lng.toFixed(4)}`, { maxWidth: 300 })
       .openPopup();
   });
 
@@ -54,8 +53,9 @@ document.addEventListener("DOMContentLoaded", () => {
             layer.setStyle({ color: "red", weight: 3 });
 
             let countryName = feature.properties.name;
-            countryName = standardizeCountryName(countryName); // Fix for USA, France, etc.
+            countryName = standardizeCountryName(countryName);
 
+            // Popup content with a toggle button for the Wikipedia summary
             const popupContent = `
               <div class="country-popup">
                 <h3>${countryName}</h3>
@@ -64,13 +64,15 @@ document.addEventListener("DOMContentLoaded", () => {
               </div>
             `;
 
-            layer.bindPopup(popupContent).openPopup();
+            // Use maxWidth option to limit popup size
+            layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup();
           });
         }
       }).addTo(map);
     })
     .catch(err => console.error("Error loading countries GeoJSON:", err));
 
+  // Fetch Wikipedia summary using the REST API
   function fetchWikipediaSummary(country) {
     const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(country)}`;
     return fetch(url)
@@ -79,6 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch(() => "Error fetching summary.");
   }
 
+  // Standardize some country names to match Wikipedia page titles
   function standardizeCountryName(country) {
     const countryMap = {
       "United States": "United States",
@@ -92,6 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return countryMap[country] || country;
   }
 
+  // Attach event listener to popup buttons when a popup opens
   map.on("popupopen", function (e) {
     const popupNode = e.popup.getElement();
     const button = popupNode.querySelector(".toggle-summary");
@@ -100,7 +104,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const country = button.getAttribute("data-country");
         const summaryDiv = popupNode.querySelector(".wiki-summary");
         if (summaryDiv.style.display === "none") {
+          // Fetch and display the Wikipedia summary, but limit text length if desired
           fetchWikipediaSummary(country).then(summary => {
+            // Optionally, trim the summary (here we display the full text; you could limit to e.g. 300 chars)
             summaryDiv.innerHTML = summary;
             summaryDiv.style.display = "block";
             button.textContent = "Hide Wikipedia Summary";
@@ -113,6 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Custom marker example
   const customIcon = L.icon({
     iconUrl: "images/cars1.jpeg",
     iconSize: [25, 25],
@@ -120,5 +127,5 @@ document.addEventListener("DOMContentLoaded", () => {
     popupAnchor: [0, -25]
   });
   L.marker([40.7128, -74.0060], { icon: customIcon }).addTo(map)
-    .bindPopup("Custom Marker at New York");
+    .bindPopup("Custom Marker at New York", { maxWidth: 300 });
 });
