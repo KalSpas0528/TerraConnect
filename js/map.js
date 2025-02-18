@@ -131,3 +131,154 @@ document.addEventListener("DOMContentLoaded", () => {
   L.marker([40.7128, -74.0060], { icon: customIcon }).addTo(map)
     .bindPopup("Custom Lightning McQueen", { maxWidth: 150 });
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  // ... existing map setup code remains unchanged ...
+
+  // ============== NEW: VISITED COUNTRIES TRACKER ==============
+  let visitedCountries = JSON.parse(localStorage.getItem('visitedCountries')) || [];
+  let geojsonLayer; // Reference for GeoJSON layer
+
+  // Visited Countries Control
+  const visitedControl = L.control({ position: 'topleft' }); // Changed to topleft to avoid overlap
+  visitedControl.onAdd = function() {
+    const div = L.DomUtil.create('div', 'leaflet-bar visited-control');
+    div.innerHTML = `
+      <button class="visited-toggle">Visited (${visitedCountries.length})</button>
+    `;
+    return div;
+  };
+  visitedControl.addTo(map);
+
+  // Update visited countries function
+  function updateVisitedCountries(country) {
+    const standardized = standardizeCountryName(country);
+    if (!visitedCountries.includes(standardized)) {
+      visitedCountries.push(standardized);
+      localStorage.setItem('visitedCountries', JSON.stringify(visitedCountries));
+      document.querySelector('.visited-toggle').textContent = `Visited (${visitedCountries.length})`;
+    }
+  }
+
+  // Show visited countries list
+  map.on('click', (e) => {
+    if (e.originalEvent.target.classList.contains('visited-toggle')) {
+      const content = visitedCountries.length > 0 
+        ? `<div class="visited-list">${visitedCountries.join(', ')}</div><button class="reset-visited">Reset List</button>`
+        : '<div>No countries visited yet</div>';
+      
+      L.popup()
+        .setLatLng(e.latlng)
+        .setContent(content)
+        .openOn(map);
+    }
+  });
+
+  // Handle reset visited
+  map.on('popupopen', (e) => {
+    const popup = e.popup;
+    const resetBtn = popup.getElement().querySelector('.reset-visited');
+    if (resetBtn) {
+      resetBtn.onclick = () => {
+        visitedCountries = [];
+        localStorage.removeItem('visitedCountries');
+        document.querySelector('.visited-toggle').textContent = 'Visited (0)';
+        popup.close();
+      };
+    }
+  });
+
+  // ============== NEW: COUNTRY GUESSING GAME ==============
+  let gameActive = false;
+  let targetCountry = null;
+  let score = 0;
+
+  // Game Control
+  const gameControl = L.control({ position: 'topleft' });
+  gameControl.onAdd = function() {
+    const div = L.DomUtil.create('div', 'leaflet-bar game-control');
+    div.innerHTML = `
+      <button class="game-toggle">Start Guessing Game</button>
+      <div class="game-status" style="display:none;">Score: ${score}</div>
+    `;
+    return div;
+  };
+  gameControl.addTo(map);
+
+  // Game Functions
+  function startGame() {
+    gameActive = true;
+    score = 0;
+    document.querySelector('.game-status').style.display = 'block';
+    document.querySelector('.game-toggle').textContent = 'Stop Game';
+    nextRound();
+  }
+
+  function stopGame() {
+    gameActive = false;
+    document.querySelector('.game-status').style.display = 'none';
+    document.querySelector('.game-toggle').textContent = 'Start Guessing Game';
+    geojsonLayer.resetStyle();
+  }
+
+  function nextRound() {
+    if (!gameActive) return;
+
+    const features = geojsonLayer.getLayers();
+    const randomFeature = features[Math.floor(Math.random() * features.length)];
+    targetCountry = standardizeCountryName(randomFeature.feature.properties.name);
+    
+    // Highlight target country
+    geojsonLayer.resetStyle();
+    randomFeature.setStyle({ color: '#ffd700', weight: 3 });
+    
+    setTimeout(() => { // Add slight delay for better UX
+      const guess = prompt('Guess the highlighted country:');
+      if (guess && standardizeCountryName(guess.trim()) === targetCountry) {
+        score++;
+        alert('Correct! Score: ' + score);
+      } else {
+        alert(`Wrong! The correct answer was ${targetCountry}. Score: ${score}`);
+      }
+      document.querySelector('.game-status').textContent = `Score: ${score}`;
+      nextRound();
+    }, 300);
+  }
+
+  // Game Control Events
+  document.querySelector('.game-toggle').addEventListener('click', () => {
+    if (gameActive) stopGame();
+    else startGame();
+  });
+
+  // ============== MODIFIED GEOJSON HANDLING ==============
+  fetch("countries.geojson")
+    .then(response => response.json())
+    .then(data => {
+      geojsonLayer = L.geoJSON(data, { // Assign to outer variable
+        style: function () {
+          return { color: "blue", weight: 1, fillOpacity: 0 };
+        },
+        onEachFeature: function (feature, layer) {
+          layer.on("click", function () {
+            if (gameActive) return; // Disable during game
+            
+            // Existing code remains...
+            geojsonLayer.resetStyle();
+            layer.setStyle({ color: "red", weight: 3 });
+
+            let countryName = feature.properties.name;
+            countryName = standardizeCountryName(countryName);
+
+            // Add to visited countries
+            updateVisitedCountries(countryName);
+
+            // Rest of existing popup code...
+          });
+        }
+      }).addTo(map);
+    })
+    .catch(err => console.error("Error loading countries GeoJSON:", err));
+
+  // ... rest of existing code remains unchanged ...
+});

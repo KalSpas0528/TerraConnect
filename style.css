@@ -87,3 +87,29 @@ body {
   text-align: left;
   line-height: 1.4;
 }
+/* Visited Countries Styling */
+.visited-control button {
+  background: #28a745 !important;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.visited-list {
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 10px 0;
+}
+
+/* Game Control Styling */
+.game-control button {
+  background: #dc3545 !important;
+  color: white;
+}
+
+.game-status {
+  padding: 5px;
+  background: white;
+  margin-top: 5px;
+  border-radius: 4px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+}
