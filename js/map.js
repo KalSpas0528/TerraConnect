@@ -1,4 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // --- Global Variables ---
+  let allCountries = [];
+  let visitedCountries = JSON.parse(localStorage.getItem("visitedCountries") || "[]");
+  let gameActive = false;
+  let currentGameCountry = null;
+
+  // --- Create the Map ---
   const map = L.map("map", { minZoom: 2, tap: true }).setView([20, 0], 2);
 
   L.tileLayer("https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png", {
@@ -9,12 +16,10 @@ document.addEventListener("DOMContentLoaded", () => {
     minZoom: 2,
   }).addTo(map);
 
-  const bounds = L.latLngBounds(
-    L.latLng(-85, -180),
-    L.latLng(85, 180)
-  );
+  const bounds = L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180));
   map.setMaxBounds(bounds);
 
+  // --- Marker Toggle Control (existing) ---
   let markersEnabled = true;
   const markerToggleControl = L.control({ position: "topright" });
   markerToggleControl.onAdd = function () {
@@ -31,11 +36,95 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   markerToggleControl.addTo(map);
 
+  // --- Visited Countries Control ---
+  const visitedControl = L.control({ position: "bottomleft" });
+  visitedControl.onAdd = function (map) {
+    const div = L.DomUtil.create("div", "visited-control");
+    div.innerHTML = `<h4>Visited Countries</h4>
+                     <ul id="visited-list">
+                       ${visitedCountries.map(c => `<li>${c}</li>`).join("")}
+                     </ul>`;
+    return div;
+  };
+  visitedControl.addTo(map);
+
+  // Helper: Update visited countries list UI & localStorage
+  function updateVisitedList() {
+    const visitedListElem = document.getElementById("visited-list");
+    if (visitedListElem) {
+      visitedListElem.innerHTML = visitedCountries.map(c => `<li>${c}</li>`).join("");
+    }
+    localStorage.setItem("visitedCountries", JSON.stringify(visitedCountries));
+  }
+
+  // --- Country Guessing Game Control ---
+  const gameControl = L.control({ position: "topleft" });
+  gameControl.onAdd = function (map) {
+    const div = L.DomUtil.create("div", "game-control");
+    div.innerHTML = `
+      <button id="start-game-btn">Start Country Guessing Game</button>
+      <div id="game-area" style="display:none;">
+        <p id="game-instructions">Guess the country:</p>
+        <input type="text" id="game-guess" placeholder="Enter country name" />
+        <br/>
+        <button id="submit-guess-btn">Submit Guess</button>
+        <button id="exit-game-btn">Exit Game</button>
+        <p id="game-feedback"></p>
+      </div>
+    `;
+    return div;
+  };
+  gameControl.addTo(map);
+
+  // --- Game Mode Functions & Event Listeners ---
+  function startNewGame() {
+    // Choose a random country from our allCountries list
+    const randomIndex = Math.floor(Math.random() * allCountries.length);
+    currentGameCountry = allCountries[randomIndex];
+    document.getElementById("game-instructions").textContent = "Guess the country!";
+    document.getElementById("game-feedback").textContent = "";
+    document.getElementById("game-guess").value = "";
+    // (Optional: you could display a hint or the number of letters here)
+  }
+
+  document.getElementById("start-game-btn").addEventListener("click", function () {
+    if (!allCountries.length) {
+      alert("Countries data is still loading. Please wait a moment.");
+      return;
+    }
+    gameActive = true;
+    document.getElementById("game-area").style.display = "block";
+    startNewGame();
+  });
+
+  document.getElementById("exit-game-btn").addEventListener("click", function () {
+    gameActive = false;
+    document.getElementById("game-area").style.display = "none";
+    document.getElementById("game-feedback").textContent = "";
+    document.getElementById("game-guess").value = "";
+  });
+
+  document.getElementById("submit-guess-btn").addEventListener("click", function () {
+    if (!gameActive) return;
+    const userGuess = document.getElementById("game-guess").value.trim();
+    if (userGuess.toLowerCase() === currentGameCountry.toLowerCase()) {
+      document.getElementById("game-feedback").textContent = "Correct! Well done.";
+      // Start a new round after a short delay
+      setTimeout(() => {
+        startNewGame();
+      }, 2000);
+    } else {
+      document.getElementById("game-feedback").textContent = "Incorrect. Try again!";
+    }
+  });
+
+  // --- Map Click for Markers (existing) ---
   map.on("click", function (e) {
     if (!markersEnabled) return;
     const lat = e.latlng.lat;
     const lng = e.latlng.lng;
-    L.marker([lat, lng]).addTo(map)
+    L.marker([lat, lng])
+      .addTo(map)
       .bindPopup(
         `<b>Clicked location:</b><br>Latitude: ${lat.toFixed(4)}<br>Longitude: ${lng.toFixed(4)}`,
         { maxWidth: 300 }
@@ -43,9 +132,19 @@ document.addEventListener("DOMContentLoaded", () => {
       .openPopup();
   });
 
+  // --- Load GeoJSON and Set Up Country Polygons ---
   fetch("countries.geojson")
     .then(response => response.json())
     .then(data => {
+      // Populate the list of all country names (avoid duplicates)
+      data.features.forEach(feature => {
+        let countryName = feature.properties.name;
+        countryName = standardizeCountryName(countryName);
+        if (!allCountries.includes(countryName)) {
+          allCountries.push(countryName);
+        }
+      });
+
       const geojsonLayer = L.geoJSON(data, {
         style: function () {
           return { color: "blue", weight: 1, fillOpacity: 0 };
@@ -58,6 +157,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             let countryName = feature.properties.name;
             countryName = standardizeCountryName(countryName);
+
+            // --- Save visited country if not already saved ---
+            if (!visitedCountries.includes(countryName)) {
+              visitedCountries.push(countryName);
+              updateVisitedList();
+            }
 
             const popupContent = `
               <div class="country-popup">
@@ -76,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .catch(err => console.error("Error loading countries GeoJSON:", err));
 
-  // Fetch Wikipedia summary using the REST API
+  // --- Wikipedia Summary (existing) ---
   function fetchWikipediaSummary(country) {
     const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(country)}`;
     return fetch(url)
@@ -121,164 +226,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Custom marker example
+  // --- Custom Marker Example (existing) ---
   const customIcon = L.icon({
     iconUrl: "images/cars1.jpeg",
     iconSize: [25, 25],
     iconAnchor: [12, 25],
     popupAnchor: [0, -25]
   });
-  L.marker([40.7128, -74.0060], { icon: customIcon }).addTo(map)
+  L.marker([40.7128, -74.0060], { icon: customIcon })
+    .addTo(map)
     .bindPopup("Custom Lightning McQueen", { maxWidth: 150 });
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-  // ... existing map setup code remains unchanged ...
-
-  // ============== NEW: VISITED COUNTRIES TRACKER ==============
-  let visitedCountries = JSON.parse(localStorage.getItem('visitedCountries')) || [];
-  let geojsonLayer; // Reference for GeoJSON layer
-
-  // Visited Countries Control
-  const visitedControl = L.control({ position: 'topleft' }); // Changed to topleft to avoid overlap
-  visitedControl.onAdd = function() {
-    const div = L.DomUtil.create('div', 'leaflet-bar visited-control');
-    div.innerHTML = `
-      <button class="visited-toggle">Visited (${visitedCountries.length})</button>
-    `;
-    return div;
-  };
-  visitedControl.addTo(map);
-
-  // Update visited countries function
-  function updateVisitedCountries(country) {
-    const standardized = standardizeCountryName(country);
-    if (!visitedCountries.includes(standardized)) {
-      visitedCountries.push(standardized);
-      localStorage.setItem('visitedCountries', JSON.stringify(visitedCountries));
-      document.querySelector('.visited-toggle').textContent = `Visited (${visitedCountries.length})`;
-    }
-  }
-
-  // Show visited countries list
-  map.on('click', (e) => {
-    if (e.originalEvent.target.classList.contains('visited-toggle')) {
-      const content = visitedCountries.length > 0 
-        ? `<div class="visited-list">${visitedCountries.join(', ')}</div><button class="reset-visited">Reset List</button>`
-        : '<div>No countries visited yet</div>';
-      
-      L.popup()
-        .setLatLng(e.latlng)
-        .setContent(content)
-        .openOn(map);
-    }
-  });
-
-  // Handle reset visited
-  map.on('popupopen', (e) => {
-    const popup = e.popup;
-    const resetBtn = popup.getElement().querySelector('.reset-visited');
-    if (resetBtn) {
-      resetBtn.onclick = () => {
-        visitedCountries = [];
-        localStorage.removeItem('visitedCountries');
-        document.querySelector('.visited-toggle').textContent = 'Visited (0)';
-        popup.close();
-      };
-    }
-  });
-
-  // ============== NEW: COUNTRY GUESSING GAME ==============
-  let gameActive = false;
-  let targetCountry = null;
-  let score = 0;
-
-  // Game Control
-  const gameControl = L.control({ position: 'topleft' });
-  gameControl.onAdd = function() {
-    const div = L.DomUtil.create('div', 'leaflet-bar game-control');
-    div.innerHTML = `
-      <button class="game-toggle">Start Guessing Game</button>
-      <div class="game-status" style="display:none;">Score: ${score}</div>
-    `;
-    return div;
-  };
-  gameControl.addTo(map);
-
-  // Game Functions
-  function startGame() {
-    gameActive = true;
-    score = 0;
-    document.querySelector('.game-status').style.display = 'block';
-    document.querySelector('.game-toggle').textContent = 'Stop Game';
-    nextRound();
-  }
-
-  function stopGame() {
-    gameActive = false;
-    document.querySelector('.game-status').style.display = 'none';
-    document.querySelector('.game-toggle').textContent = 'Start Guessing Game';
-    geojsonLayer.resetStyle();
-  }
-
-  function nextRound() {
-    if (!gameActive) return;
-
-    const features = geojsonLayer.getLayers();
-    const randomFeature = features[Math.floor(Math.random() * features.length)];
-    targetCountry = standardizeCountryName(randomFeature.feature.properties.name);
-    
-    // Highlight target country
-    geojsonLayer.resetStyle();
-    randomFeature.setStyle({ color: '#ffd700', weight: 3 });
-    
-    setTimeout(() => { // Add slight delay for better UX
-      const guess = prompt('Guess the highlighted country:');
-      if (guess && standardizeCountryName(guess.trim()) === targetCountry) {
-        score++;
-        alert('Correct! Score: ' + score);
-      } else {
-        alert(`Wrong! The correct answer was ${targetCountry}. Score: ${score}`);
-      }
-      document.querySelector('.game-status').textContent = `Score: ${score}`;
-      nextRound();
-    }, 300);
-  }
-
-  // Game Control Events
-  document.querySelector('.game-toggle').addEventListener('click', () => {
-    if (gameActive) stopGame();
-    else startGame();
-  });
-
-  // ============== MODIFIED GEOJSON HANDLING ==============
-  fetch("countries.geojson")
-    .then(response => response.json())
-    .then(data => {
-      geojsonLayer = L.geoJSON(data, { // Assign to outer variable
-        style: function () {
-          return { color: "blue", weight: 1, fillOpacity: 0 };
-        },
-        onEachFeature: function (feature, layer) {
-          layer.on("click", function () {
-            if (gameActive) return; // Disable during game
-            
-            // Existing code remains...
-            geojsonLayer.resetStyle();
-            layer.setStyle({ color: "red", weight: 3 });
-
-            let countryName = feature.properties.name;
-            countryName = standardizeCountryName(countryName);
-
-            // Add to visited countries
-            updateVisitedCountries(countryName);
-
-            // Rest of existing popup code...
-          });
-        }
-      }).addTo(map);
-    })
-    .catch(err => console.error("Error loading countries GeoJSON:", err));
-
-  // ... rest of existing code remains unchanged ...
 });

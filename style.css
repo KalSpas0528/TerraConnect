@@ -75,7 +75,7 @@ body {
 
 /* Wikipedia summary area styling */
 .wiki-summary {
-  max-height: 120px; /* Limit the height for readability */
+  max-height: 120px;
   overflow-y: auto;
   margin-top: 8px;
   padding: 5px;
@@ -87,29 +87,58 @@ body {
   text-align: left;
   line-height: 1.4;
 }
-/* Visited Countries Styling */
-.visited-control button {
-  background: #28a745 !important;
-  color: white;
-  margin-bottom: 10px;
-}
 
-.visited-list {
-  max-height: 200px;
+/* Visited Countries Styling */
+.visited-control {
+  background: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+.visited-control h4 {
+  margin: 0 0 5px 0;
+  font-size: 16px;
+}
+.visited-control ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 150px;
   overflow-y: auto;
-  margin: 10px 0;
+}
+.visited-control li {
+  margin: 2px 0;
 }
 
 /* Game Control Styling */
+.game-control {
+  background: white;
+  padding: 10px;
+  border-radius: 5px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+}
 .game-control button {
   background: #dc3545 !important;
   color: white;
-}
-
-.game-status {
-  padding: 5px;
-  background: white;
-  margin-top: 5px;
+  border: none;
+  padding: 5px 8px;
+  margin: 3px 2px;
+  cursor: pointer;
   border-radius: 4px;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+  transition: 0.3s;
+}
+.game-control button:hover {
+  opacity: 0.9;
+}
+#game-area {
+  margin-top: 5px;
+}
+#game-guess {
+  width: 100%;
+  padding: 5px;
+  margin-bottom: 5px;
 }
