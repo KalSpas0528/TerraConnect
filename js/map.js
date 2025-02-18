@@ -1,11 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // --- Global Variables ---
+  // Global Variables
   let allCountries = [];
   let visitedCountries = JSON.parse(localStorage.getItem("visitedCountries") || "[]");
   let gameActive = false;
   let currentGameCountry = null;
+  let geojsonLayer;
+  const countryLayers = {}; // Mapping standardized country name → corresponding layer
 
-  // --- Create the Map ---
+  // Initialize Map
   const map = L.map("map", { minZoom: 2, tap: true }).setView([20, 0], 2);
 
   L.tileLayer("https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png", {
@@ -19,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const bounds = L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180));
   map.setMaxBounds(bounds);
 
-  // --- Marker Toggle Control (existing) ---
+  // Marker Toggle Control (remains visible when game is inactive)
   let markersEnabled = true;
   const markerToggleControl = L.control({ position: "topright" });
   markerToggleControl.onAdd = function () {
@@ -29,6 +31,8 @@ document.addEventListener("DOMContentLoaded", () => {
     button.style.backgroundColor = "white";
     button.onclick = function (e) {
       e.preventDefault();
+      // Do not allow toggling during game mode
+      if (gameActive) return;
       markersEnabled = !markersEnabled;
       button.innerHTML = markersEnabled ? "Markers: ON" : "Markers: OFF";
     };
@@ -36,91 +40,9 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   markerToggleControl.addTo(map);
 
-  // --- Visited Countries Control ---
-  const visitedControl = L.control({ position: "bottomleft" });
-  visitedControl.onAdd = function (map) {
-    const div = L.DomUtil.create("div", "visited-control");
-    div.innerHTML = `<h4>Visited Countries</h4>
-                     <ul id="visited-list">
-                       ${visitedCountries.map(c => `<li>${c}</li>`).join("")}
-                     </ul>`;
-    return div;
-  };
-  visitedControl.addTo(map);
-
-  // Helper: Update visited countries list UI & localStorage
-  function updateVisitedList() {
-    const visitedListElem = document.getElementById("visited-list");
-    if (visitedListElem) {
-      visitedListElem.innerHTML = visitedCountries.map(c => `<li>${c}</li>`).join("");
-    }
-    localStorage.setItem("visitedCountries", JSON.stringify(visitedCountries));
-  }
-
-  // --- Country Guessing Game Control ---
-  const gameControl = L.control({ position: "topleft" });
-  gameControl.onAdd = function (map) {
-    const div = L.DomUtil.create("div", "game-control");
-    div.innerHTML = `
-      <button id="start-game-btn">Start Country Guessing Game</button>
-      <div id="game-area" style="display:none;">
-        <p id="game-instructions">Guess the country:</p>
-        <input type="text" id="game-guess" placeholder="Enter country name" />
-        <br/>
-        <button id="submit-guess-btn">Submit Guess</button>
-        <button id="exit-game-btn">Exit Game</button>
-        <p id="game-feedback"></p>
-      </div>
-    `;
-    return div;
-  };
-  gameControl.addTo(map);
-
-  // --- Game Mode Functions & Event Listeners ---
-  function startNewGame() {
-    // Choose a random country from our allCountries list
-    const randomIndex = Math.floor(Math.random() * allCountries.length);
-    currentGameCountry = allCountries[randomIndex];
-    document.getElementById("game-instructions").textContent = "Guess the country!";
-    document.getElementById("game-feedback").textContent = "";
-    document.getElementById("game-guess").value = "";
-    // (Optional: you could display a hint or the number of letters here)
-  }
-
-  document.getElementById("start-game-btn").addEventListener("click", function () {
-    if (!allCountries.length) {
-      alert("Countries data is still loading. Please wait a moment.");
-      return;
-    }
-    gameActive = true;
-    document.getElementById("game-area").style.display = "block";
-    startNewGame();
-  });
-
-  document.getElementById("exit-game-btn").addEventListener("click", function () {
-    gameActive = false;
-    document.getElementById("game-area").style.display = "none";
-    document.getElementById("game-feedback").textContent = "";
-    document.getElementById("game-guess").value = "";
-  });
-
-  document.getElementById("submit-guess-btn").addEventListener("click", function () {
-    if (!gameActive) return;
-    const userGuess = document.getElementById("game-guess").value.trim();
-    if (userGuess.toLowerCase() === currentGameCountry.toLowerCase()) {
-      document.getElementById("game-feedback").textContent = "Correct! Well done.";
-      // Start a new round after a short delay
-      setTimeout(() => {
-        startNewGame();
-      }, 2000);
-    } else {
-      document.getElementById("game-feedback").textContent = "Incorrect. Try again!";
-    }
-  });
-
-  // --- Map Click for Markers (existing) ---
+  // Map click: add marker only if markers are enabled and game is not active
   map.on("click", function (e) {
-    if (!markersEnabled) return;
+    if (!markersEnabled || gameActive) return;
     const lat = e.latlng.lat;
     const lng = e.latlng.lng;
     L.marker([lat, lng])
@@ -132,11 +54,21 @@ document.addEventListener("DOMContentLoaded", () => {
       .openPopup();
   });
 
-  // --- Load GeoJSON and Set Up Country Polygons ---
+  // Update visited countries list UI & save to localStorage
+  function updateVisitedList() {
+    const visitedListElem = document.getElementById("visited-list");
+    if (visitedListElem) {
+      visitedListElem.innerHTML = visitedCountries.map(c => `<li>${c}</li>`).join("");
+    }
+    localStorage.setItem("visitedCountries", JSON.stringify(visitedCountries));
+  }
+  updateVisitedList();
+
+  // Load GeoJSON for countries
   fetch("countries.geojson")
     .then(response => response.json())
     .then(data => {
-      // Populate the list of all country names (avoid duplicates)
+      // Populate list of country names
       data.features.forEach(feature => {
         let countryName = feature.properties.name;
         countryName = standardizeCountryName(countryName);
@@ -145,20 +77,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      const geojsonLayer = L.geoJSON(data, {
+      // Create GeoJSON layer and store each country layer for game highlighting
+      geojsonLayer = L.geoJSON(data, {
         style: function () {
           return { color: "blue", weight: 1, fillOpacity: 0 };
         },
         onEachFeature: function (feature, layer) {
+          let countryName = feature.properties.name;
+          countryName = standardizeCountryName(countryName);
+          countryLayers[countryName] = layer;
+
+          // Attach click event for normal (non‑game) interactions
           layer.on("click", function () {
-            // Reset style for all countries
+            if (gameActive) return; // Disable clicks during game mode
             geojsonLayer.resetStyle();
             layer.setStyle({ color: "red", weight: 3 });
 
-            let countryName = feature.properties.name;
-            countryName = standardizeCountryName(countryName);
-
-            // --- Save visited country if not already saved ---
+            // Save as visited country
             if (!visitedCountries.includes(countryName)) {
               visitedCountries.push(countryName);
               updateVisitedList();
@@ -171,8 +106,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="wiki-summary" style="display:none;">Loading summary...</div>
               </div>
             `;
-
-            // Unbind any existing popup first, then bind and open a new popup
             layer.unbindPopup();
             layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup();
           });
@@ -181,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .catch(err => console.error("Error loading countries GeoJSON:", err));
 
-  // --- Wikipedia Summary (existing) ---
+  // Fetch Wikipedia summary (unchanged)
   function fetchWikipediaSummary(country) {
     const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(country)}`;
     return fetch(url)
@@ -190,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch(() => "Error fetching summary.");
   }
 
-  // Standardize some country names to match Wikipedia page titles
+  // Standardize country names for consistency
   function standardizeCountryName(country) {
     const countryMap = {
       "United States": "United States",
@@ -204,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return countryMap[country] || country;
   }
 
-  // Attach event listener to popup buttons when a popup opens
+  // Attach event listener for popup summary toggle
   map.on("popupopen", function (e) {
     const popupNode = e.popup.getElement();
     const button = popupNode.querySelector(".toggle-summary");
@@ -226,7 +159,89 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // --- Custom Marker Example (existing) ---
+  // ===== GAME FUNCTIONALITY =====
+
+  // Elements for game modal
+  const gameModal = document.getElementById("gameModal");
+  const closeGameModal = document.getElementById("closeGameModal");
+  const submitGuessBtn = document.getElementById("submit-guess-btn");
+  const newGameBtn = document.getElementById("new-game-btn");
+  const gameFeedback = document.getElementById("game-feedback");
+  const gameGuessInput = document.getElementById("game-guess");
+
+  // Start Game Button in Sidebar
+  const startGameBtn = document.getElementById("startGameBtn");
+  startGameBtn.addEventListener("click", () => {
+    if (allCountries.length === 0) {
+      alert("Countries data is still loading. Please wait.");
+      return;
+    }
+    startGameMode();
+  });
+
+  // Start game mode: disable markers & normal clicks, show modal, pick a target
+  function startGameMode() {
+    gameActive = true;
+    markersEnabled = false;
+    gameModal.style.display = "block";
+    startNewGame();
+  }
+
+  // End game mode: hide modal, re-enable markers, reset target highlight
+  function endGameMode() {
+    gameActive = false;
+    markersEnabled = true;
+    gameModal.style.display = "none";
+    if (currentGameCountry && countryLayers[currentGameCountry]) {
+      geojsonLayer.resetStyle(countryLayers[currentGameCountry]);
+    }
+    currentGameCountry = null;
+    gameFeedback.textContent = "";
+    gameGuessInput.value = "";
+  }
+
+  // Close modal events
+  closeGameModal.addEventListener("click", endGameMode);
+  window.addEventListener("click", function(e) {
+    if (e.target == gameModal) {
+      endGameMode();
+    }
+  });
+
+  // Start a new game round: pick a random country and highlight it
+  function startNewGame() {
+    if (currentGameCountry && countryLayers[currentGameCountry]) {
+      geojsonLayer.resetStyle(countryLayers[currentGameCountry]);
+    }
+    const randomIndex = Math.floor(Math.random() * allCountries.length);
+    currentGameCountry = allCountries[randomIndex];
+    const targetLayer = countryLayers[currentGameCountry];
+    if (targetLayer) {
+      geojsonLayer.resetStyle();
+      targetLayer.setStyle({ color: "green", weight: 4, fillOpacity: 0.2 });
+      targetLayer.bringToFront();
+    }
+    gameFeedback.textContent = "";
+    gameGuessInput.value = "";
+  }
+
+  // Process user's guess
+  submitGuessBtn.addEventListener("click", function() {
+    if (!gameActive) return;
+    const userGuess = gameGuessInput.value.trim();
+    if (userGuess.toLowerCase() === currentGameCountry.toLowerCase()) {
+      gameFeedback.textContent = "Correct! Well done.";
+      setTimeout(() => {
+        startNewGame();
+      }, 2000);
+    } else {
+      gameFeedback.textContent = "Incorrect. Try again!";
+    }
+  });
+
+  newGameBtn.addEventListener("click", startNewGame);
+
+  // ===== Custom Marker Example =====
   const customIcon = L.icon({
     iconUrl: "images/cars1.jpeg",
     iconSize: [25, 25],

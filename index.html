@@ -9,6 +9,29 @@
 </head>
 <body>
   <div id="map"></div>
+
+  <!-- Game Modal -->
+  <div id="gameModal" class="modal">
+    <div class="modal-content">
+      <span id="closeGameModal" class="close">&times;</span>
+      <h2>Country Guessing Game</h2>
+      <p id="game-instructions">Guess the highlighted country!</p>
+      <input type="text" id="game-guess" placeholder="Enter country name" />
+      <div class="game-buttons">
+        <button id="submit-guess-btn">Submit Guess</button>
+        <button id="new-game-btn">New Game</button>
+      </div>
+      <p id="game-feedback"></p>
+    </div>
+  </div>
+
+  <!-- Visited Countries Sidebar -->
+  <div id="visitedSidebar" class="sidebar">
+    <h3>Visited Countries</h3>
+    <ul id="visited-list"></ul>
+    <button id="startGameBtn">Start Guessing Game</button>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script src="js/map.js"></script>
 </body>
