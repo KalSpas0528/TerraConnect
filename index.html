@@ -13,7 +13,6 @@
     <h1>Welcome to TerraConnect</h1>
     <p>Embark on a global adventure with TerraConnect! Explore interactive maps, uncover live news, discover fascinating cultural facts, and gain unique insights from countries around the world. Let geography meet technology in this engaging, interactive experience.</p>
     <p>"Travel the globe, explore the unknown, and make every country your own©™!"</p>
-
     <button id="enterMapBtn">Enter Map</button>
   </div>
 
@@ -41,9 +40,27 @@
     <ul id="visited-list"></ul>
     <button id="clearVisitedBtn">Clear Visited</button>
     <button id="startGameBtn">Start Guessing Game</button>
+    <button id="compareCountriesBtn">Compare Countries</button>
+  </div>
+
+  <!-- Country Comparison Modal -->
+  <div id="comparisonModal">
+    <div class="comparison-content">
+      <span id="closeComparisonModal" class="close-comparison">&times;</span>
+      <h2>Compare Countries</h2>
+      <select id="country1">
+        <option value="">Select Country 1</option>
+      </select>
+      <select id="country2">
+        <option value="">Select Country 2</option>
+      </select>
+      <button id="compareBtn">Compare</button>
+      <div id="comparisonResults" class="comparison-results"></div>
+    </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script src="js/map.js"></script>
+  <script src="js/comparison.js"></script>
 </body>
 </html>

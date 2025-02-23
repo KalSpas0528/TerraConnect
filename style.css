@@ -221,6 +221,75 @@ body {
   font-weight: bold;
 }
 
+/* Country Comparison Modal Styling */
+#comparisonModal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  z-index: 1300;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.comparison-content {
+  background-color: #fefefe;
+  margin: 5% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 600px;
+  border-radius: 8px;
+  position: relative;
+}
+
+.comparison-content h2 {
+  margin-top: 0;
+}
+
+.comparison-content select,
+.comparison-content button {
+  margin: 10px 5px;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.comparison-results {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.comparison-column {
+  width: 45%;
+  background: #f9f9f9;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.comparison-column h3 {
+  margin-top: 0;
+}
+
+/* Close button for comparison modal */
+.close-comparison {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  color: #aaa;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close-comparison:hover,
+.close-comparison:focus {
+  color: #000;
+}
+
 /* Responsiveness */
 @media (max-width: 768px) {
   #map {
