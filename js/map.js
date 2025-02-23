@@ -129,6 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "United States": "United States",
       "United States of America": "United States",
       "USA": "United States",
+      "greatest country ever": "Bulgaria",
       "France": "France",
       "Russian Federation": "Russia",
       "United Kingdom": "United Kingdom",
