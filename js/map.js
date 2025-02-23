@@ -251,4 +251,23 @@ document.addEventListener("DOMContentLoaded", () => {
   L.marker([40.7128, -74.0060], { icon: customIcon })
     .addTo(map)
     .bindPopup("Custom Lightning McQueen", { maxWidth: 150 });
+
+  // Event listener for clearing visited countries
+  const clearVisitedBtn = document.getElementById("clearVisitedBtn");
+  clearVisitedBtn.addEventListener("click", function() {
+    visitedCountries = [];
+    updateVisitedList();
+    localStorage.removeItem("visitedCountries");
+  });
+
+  // Event listener for entering map from homepage overlay
+  const enterMapBtn = document.getElementById("enterMapBtn");
+  if (enterMapBtn) {
+    enterMapBtn.addEventListener("click", function() {
+      const homepage = document.getElementById("homepage");
+      homepage.style.display = "none";
+      // Invalidate map size in case of rendering issues
+      map.invalidateSize();
+    });
+  }
 });

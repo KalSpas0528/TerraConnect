@@ -8,9 +8,17 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Homepage Overlay -->
+  <div id="homepage" class="homepage">
+    <h1>Welcome to TerraConnect</h1>
+    <p>Explore the world and play our Country Guessing Game!</p>
+    <button id="enterMapBtn">Enter Map</button>
+  </div>
+
+  <!-- Map Container -->
   <div id="map"></div>
 
-  <!-- Game Modal -->
+  <!-- Game Modal (Now a small floating window) -->
   <div id="gameModal" class="modal">
     <div class="modal-content">
       <span id="closeGameModal" class="close">&times;</span>
@@ -29,6 +37,7 @@
   <div id="visitedSidebar" class="sidebar">
     <h3>Visited Countries</h3>
     <ul id="visited-list"></ul>
+    <button id="clearVisitedBtn">Clear Visited</button>
     <button id="startGameBtn">Start Guessing Game</button>
   </div>
 

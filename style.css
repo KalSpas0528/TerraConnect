@@ -9,11 +9,45 @@ body {
   width: 100%;
 }
 
-/* Responsiveness */
-@media (max-width: 768px) {
-  #map {
-    height: 60vh;
-  }
+/* Homepage Overlay */
+.homepage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1200;
+  text-align: center;
+}
+
+.homepage h1 {
+  font-size: 36px;
+  margin-bottom: 20px;
+}
+
+.homepage p {
+  font-size: 18px;
+  margin-bottom: 30px;
+}
+
+.homepage button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  background: #007bff;
+  color: #fff;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.homepage button:hover {
+  background: #0056b3;
 }
 
 /* Marker Toggle Button (Leaflet Control) */
@@ -125,28 +159,27 @@ body {
   background: #c82333;
 }
 
-/* Game Modal Styling */
+/* Game Modal Styling (Adjusted to not block map) */
 .modal {
   display: none; /* Hidden by default */
-  position: fixed;
+  position: absolute;
   z-index: 1100;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0,0,0,0.5);
+  top: 20px;
+  right: 20px;
+  width: 320px;
+  background: transparent;
 }
+
 .modal-content {
   background-color: #fefefe;
-  margin: 10% auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 320px;
   border-radius: 8px;
   text-align: center;
   position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
+
 .close {
   position: absolute;
   top: 8px;
@@ -186,4 +219,11 @@ body {
 #game-feedback {
   margin-top: 10px;
   font-weight: bold;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+  #map {
+    height: 60vh;
+  }
 }
