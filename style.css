@@ -113,73 +113,82 @@ body {
   line-height: 1.4;
 }
 
-/* Visited Countries Sidebar */
+/* Visited Countries Sidebar (Updated Styling) */
 .sidebar {
   position: fixed;
   right: 10px;
   top: 50px;
   z-index: 1000;
   background: #fff;
-  padding: 15px;
-  border: 1px solid #ddd;
   border-radius: 8px;
-  width: 220px;
+  width: 260px;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border: none;
+  font-family: 'Poppins', sans-serif;
 }
-.sidebar h3 {
-  margin-top: 0;
-  font-size: 18px;
+.sidebar .sidebar-header {
+  background-color: #007bff;
+  color: #fff;
+  padding: 12px;
+  font-size: 20px;
   text-align: center;
+  border-radius: 8px 8px 0 0;
+  margin-bottom: 8px;
 }
 .sidebar ul {
   list-style: none;
-  padding: 0;
-  margin: 10px 0;
+  padding: 0 15px;
+  margin: 0;
 }
 .sidebar li {
-  margin: 4px 0;
-  padding: 2px 0;
-  border-bottom: 1px solid #eee;
+  margin: 6px 0;
+  padding: 6px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+.sidebar li:last-child {
+  border-bottom: none;
 }
 .sidebar button {
   display: block;
-  width: 100%;
-  padding: 8px;
+  width: calc(100% - 30px);
+  margin: 15px auto;
+  padding: 10px;
   background: #dc3545;
   color: #fff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  margin-top: 10px;
   transition: 0.3s;
+  font-size: 14px;
 }
 .sidebar button:hover {
   background: #c82333;
 }
 
-/* Game Modal Styling (Adjusted to not block map) */
+/* Game Modal Styling (Updated for Consistency) */
 .modal {
   display: none; /* Hidden by default */
-  position: absolute;
+  position: fixed;
   z-index: 1100;
-  top: 20px;
-  right: 20px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   width: 320px;
   background: transparent;
 }
-
 .modal-content {
-  background-color: #fefefe;
+  background-color: #fff;
   padding: 20px;
-  border: 1px solid #888;
+  border: none;
   border-radius: 8px;
   text-align: center;
   position: relative;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  font-family: 'Poppins', sans-serif;
 }
-
 .close {
   position: absolute;
   top: 8px;
@@ -205,6 +214,7 @@ body {
   border-radius: 4px;
   cursor: pointer;
   transition: 0.3s;
+  font-size: 14px;
 }
 .game-buttons button:hover {
   background: #218838;
@@ -219,9 +229,10 @@ body {
 #game-feedback {
   margin-top: 10px;
   font-weight: bold;
+  font-size: 14px;
 }
 
-/* Country Comparison Modal Styling */
+/* Country Comparison Modal Styling (Updated for Consistency) */
 #comparisonModal {
   display: none; /* Hidden by default */
   position: fixed;
@@ -233,48 +244,63 @@ body {
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.5);
 }
-
 .comparison-content {
-  background-color: #fefefe;
+  background-color: #fff;
   margin: 5% auto;
   padding: 20px;
-  border: 1px solid #888;
+  border: none;
   width: 80%;
   max-width: 600px;
   border-radius: 8px;
   position: relative;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  font-family: 'Poppins', sans-serif;
 }
-
 .comparison-content h2 {
   margin-top: 0;
+  font-size: 22px;
+  color: #007bff;
+  text-align: center;
 }
-
 .comparison-content select,
 .comparison-content button {
   margin: 10px 5px;
   padding: 8px;
   font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  transition: 0.3s;
 }
-
+.comparison-content button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+}
+.comparison-content button:hover {
+  background-color: #0056b3;
+}
 .comparison-results {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
   margin-top: 20px;
 }
-
 .comparison-column {
   width: 45%;
   background: #f9f9f9;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  margin-bottom: 10px;
 }
-
 .comparison-column h3 {
   margin-top: 0;
+  font-size: 18px;
+  color: #007bff;
 }
 
-/* Close button for comparison modal */
+/* Close Button for Comparison Modal */
 .close-comparison {
   position: absolute;
   top: 8px;
@@ -284,7 +310,6 @@ body {
   font-weight: bold;
   cursor: pointer;
 }
-
 .close-comparison:hover,
 .close-comparison:focus {
   color: #000;
@@ -294,5 +319,8 @@ body {
 @media (max-width: 768px) {
   #map {
     height: 60vh;
+  }
+  .sidebar {
+    width: 200px;
   }
 }
