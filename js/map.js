@@ -1,274 +1,124 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Global Variables
-  let allCountries = [];
-  let visitedCountries = JSON.parse(localStorage.getItem("visitedCountries") || "[]");
-  let gameActive = false;
-  let currentGameCountry = null;
-  let geojsonLayer;
-  const countryLayers = {}; // Mapping standardized country name → corresponding layer
+  const comparisonModal = document.getElementById("comparisonModal");
+  const closeComparisonModal = document.getElementById("closeComparisonModal");
+  const compareBtn = document.getElementById("compareBtn");
+  const country1Select = document.getElementById("country1");
+  const country2Select = document.getElementById("country2");
+  const comparisonResults = document.getElementById("comparisonResults");
+  const compareCountriesBtn = document.getElementById("compareCountriesBtn");
 
-  // Initialize Map
-  const map = L.map("map", { minZoom: 2, tap: true }).setView([20, 0], 2);
-
-  L.tileLayer("https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png", {
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
-    noWrap: true,
-    maxZoom: 19,
-    minZoom: 2,
-  }).addTo(map);
-
-  const bounds = L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180));
-  map.setMaxBounds(bounds);
-
-  // Marker Toggle Control (remains visible when game is inactive)
-  let markersEnabled = true;
-  const markerToggleControl = L.control({ position: "topright" });
-  markerToggleControl.onAdd = function () {
-    const div = L.DomUtil.create("div", "leaflet-bar");
-    const button = L.DomUtil.create("button", "", div);
-    button.innerHTML = "Markers: ON";
-    button.style.backgroundColor = "white";
-    button.onclick = function (e) {
-      e.preventDefault();
-      // Do not allow toggling during game mode
-      if (gameActive) return;
-      markersEnabled = !markersEnabled;
-      button.innerHTML = markersEnabled ? "Markers: ON" : "Markers: OFF";
-    };
-    return div;
-  };
-  markerToggleControl.addTo(map);
-
-  // Map click: add marker only if markers are enabled and game is not active
-  map.on("click", function (e) {
-    if (!markersEnabled || gameActive) return;
-    const lat = e.latlng.lat;
-    const lng = e.latlng.lng;
-    L.marker([lat, lng])
-      .addTo(map)
-      .bindPopup(
-        `<b>Clicked location:</b><br>Latitude: ${lat.toFixed(4)}<br>Longitude: ${lng.toFixed(4)}`,
-        { maxWidth: 300 }
-      )
-      .openPopup();
-  });
-
-  // Update visited countries list UI & save to localStorage
-  function updateVisitedList() {
-    const visitedListElem = document.getElementById("visited-list");
-    if (visitedListElem) {
-      visitedListElem.innerHTML = visitedCountries.map(c => `<li>${c}</li>`).join("");
-    }
-    localStorage.setItem("visitedCountries", JSON.stringify(visitedCountries));
+  if (!comparisonModal) {
+    console.error("Comparison modal not found.");
+    return;
   }
-  updateVisitedList();
+  if (!compareCountriesBtn) {
+    console.error("Compare Countries button not found.");
+  }
 
-  // Load GeoJSON for countries
-  fetch("countries.geojson")
-    .then(response => response.json())
-    .then(data => {
-      // Populate list of country names
-      data.features.forEach(feature => {
-        let countryName = feature.properties.name;
-        countryName = standardizeCountryName(countryName);
-        if (!allCountries.includes(countryName)) {
-          allCountries.push(countryName);
-        }
+  // Open the comparison modal when the button is clicked
+  function openComparisonModal() {
+    comparisonModal.style.display = "block";
+  }
+  if (compareCountriesBtn) {
+    compareCountriesBtn.addEventListener("click", openComparisonModal);
+  }
+
+  // Populate dropdowns with country names from the Rest Countries API
+  async function populateComparisonDropdowns() {
+    try {
+      const response = await fetch("https://restcountries.com/v3.1/all");
+      const data = await response.json();
+      const countryNames = data.map(country => country.name.common).sort();
+
+      countryNames.forEach(country => {
+        const option1 = document.createElement("option");
+        option1.value = country;
+        option1.textContent = country;
+        country1Select.appendChild(option1);
+
+        const option2 = document.createElement("option");
+        option2.value = country;
+        option2.textContent = country;
+        country2Select.appendChild(option2);
       });
-
-      // Create GeoJSON layer and store each country layer for game highlighting
-      geojsonLayer = L.geoJSON(data, {
-        style: function () {
-          return { color: "blue", weight: 1, fillOpacity: 0 };
-        },
-        onEachFeature: function (feature, layer) {
-          let countryName = feature.properties.name;
-          countryName = standardizeCountryName(countryName);
-          countryLayers[countryName] = layer;
-
-          // Attach click event for normal (non‑game) interactions
-          layer.on("click", function () {
-            if (gameActive) return; // Disable clicks during game mode
-            geojsonLayer.resetStyle();
-            layer.setStyle({ color: "red", weight: 3 });
-
-            // Save as visited country
-            if (!visitedCountries.includes(countryName)) {
-              visitedCountries.push(countryName);
-              updateVisitedList();
-            }
-
-            const popupContent = `
-              <div class="country-popup">
-                <h3>${countryName}</h3>
-                <button class="toggle-summary" data-country="${countryName}">Show Wikipedia Summary</button>
-                <div class="wiki-summary" style="display:none;">Loading summary...</div>
-              </div>
-            `;
-            layer.unbindPopup();
-            layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup();
-          });
-        }
-      }).addTo(map);
-    })
-    .catch(err => console.error("Error loading countries GeoJSON:", err));
-
-  // Fetch Wikipedia summary (unchanged)
-  function fetchWikipediaSummary(country) {
-    const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(country)}`;
-    return fetch(url)
-      .then(response => response.json())
-      .then(data => data.extract || "No summary available.")
-      .catch(() => "Error fetching summary.");
-  }
-
-  // Standardize country names for consistency
-  function standardizeCountryName(country) {
-    const countryMap = {
-      "United States": "United States",
-      "United States of America": "United States",
-      "USA": "United States",
-      "greatest country ever": "Bulgaria",
-      "France": "France",
-      "Russian Federation": "Russia",
-      "United Kingdom": "United Kingdom",
-      "UK": "United Kingdom",
-    };
-    return countryMap[country] || country;
-  }
-
-  // Attach event listener for popup summary toggle
-  map.on("popupopen", function (e) {
-    const popupNode = e.popup.getElement();
-    const button = popupNode.querySelector(".toggle-summary");
-    if (button) {
-      button.addEventListener("click", function () {
-        const country = button.getAttribute("data-country");
-        const summaryDiv = popupNode.querySelector(".wiki-summary");
-        if (summaryDiv.style.display === "none") {
-          fetchWikipediaSummary(country).then(summary => {
-            summaryDiv.innerHTML = summary;
-            summaryDiv.style.display = "block";
-            button.textContent = "Hide Wikipedia Summary";
-          });
-        } else {
-          summaryDiv.style.display = "none";
-          button.textContent = "Show Wikipedia Summary";
-        }
-      });
+    } catch (error) {
+      console.error("Error fetching country list:", error);
     }
-  });
+  }
 
-  // ===== GAME FUNCTIONALITY =====
+  // Fetch details for a given country using the Rest Countries API
+  async function fetchCountryDetails(countryName) {
+    try {
+      const response = await fetch(`https://restcountries.com/v3.1/name/${encodeURIComponent(countryName)}?fullText=true`);
+      const data = await response.json();
+      return data[0];
+    } catch (error) {
+      console.error(`Error fetching details for ${countryName}:`, error);
+      return null;
+    }
+  }
 
-  // Elements for game modal
-  const gameModal = document.getElementById("gameModal");
-  const closeGameModal = document.getElementById("closeGameModal");
-  const submitGuessBtn = document.getElementById("submit-guess-btn");
-  const newGameBtn = document.getElementById("new-game-btn");
-  const gameFeedback = document.getElementById("game-feedback");
-  const gameGuessInput = document.getElementById("game-guess");
+  // Compare the two selected countries and display the results
+  async function compareCountries() {
+    const country1 = country1Select.value;
+    const country2 = country2Select.value;
 
-  // Start Game Button in Sidebar
-  const startGameBtn = document.getElementById("startGameBtn");
-  startGameBtn.addEventListener("click", () => {
-    if (allCountries.length === 0) {
-      alert("Countries data is still loading. Please wait.");
+    if (!country1 || !country2) {
+      alert("Please select both countries.");
       return;
     }
-    startGameMode();
-  });
+    
+    // Show a loading message while fetching details
+    comparisonResults.innerHTML = "<p>Loading comparison...</p>";
 
-  // Start game mode: disable markers & normal clicks, show modal, pick a target
-  function startGameMode() {
-    gameActive = true;
-    markersEnabled = false;
-    gameModal.style.display = "block";
-    startNewGame();
+    const [details1, details2] = await Promise.all([
+      fetchCountryDetails(country1),
+      fetchCountryDetails(country2)
+    ]);
+
+    if (!details1 || !details2) {
+      comparisonResults.innerHTML = "<p>Error fetching country details. Please try again later.</p>";
+      return;
+    }
+
+    // Build HTML for side-by-side display of country details
+    const resultHTML = `
+      <div class="comparison-column">
+        <h3>${details1.name.common}</h3>
+        <p><strong>Population:</strong> ${details1.population.toLocaleString()}</p>
+        <p><strong>Area:</strong> ${details1.area.toLocaleString()} km²</p>
+        <p><strong>Region:</strong> ${details1.region}</p>
+        <p><strong>Capital:</strong> ${details1.capital ? details1.capital.join(", ") : "N/A"}</p>
+        <p><strong>Languages:</strong> ${details1.languages ? Object.values(details1.languages).join(", ") : "N/A"}</p>
+      </div>
+      <div class="comparison-column">
+        <h3>${details2.name.common}</h3>
+        <p><strong>Population:</strong> ${details2.population.toLocaleString()}</p>
+        <p><strong>Area:</strong> ${details2.area.toLocaleString()} km²</p>
+        <p><strong>Region:</strong> ${details2.region}</p>
+        <p><strong>Capital:</strong> ${details2.capital ? details2.capital.join(", ") : "N/A"}</p>
+        <p><strong>Languages:</strong> ${details2.languages ? Object.values(details2.languages).join(", ") : "N/A"}</p>
+      </div>
+    `;
+    comparisonResults.innerHTML = resultHTML;
   }
 
-  // End game mode: hide modal, re-enable markers, reset target highlight
-  function endGameMode() {
-    gameActive = false;
-    markersEnabled = true;
-    gameModal.style.display = "none";
-    if (currentGameCountry && countryLayers[currentGameCountry]) {
-      geojsonLayer.resetStyle(countryLayers[currentGameCountry]);
-    }
-    currentGameCountry = null;
-    gameFeedback.textContent = "";
-    gameGuessInput.value = "";
+  if (compareBtn) {
+    compareBtn.addEventListener("click", compareCountries);
+  } else {
+    console.error("Compare button not found in the modal.");
   }
 
-  // Close modal events
-  closeGameModal.addEventListener("click", endGameMode);
-  window.addEventListener("click", function(e) {
-    if (e.target == gameModal) {
-      endGameMode();
+  // Close the modal when the close button is clicked or when clicking outside the modal content
+  closeComparisonModal.addEventListener("click", () => {
+    comparisonModal.style.display = "none";
+  });
+  window.addEventListener("click", (event) => {
+    if (event.target === comparisonModal) {
+      comparisonModal.style.display = "none";
     }
   });
 
-  // Start a new game round: pick a random country and highlight it
-  function startNewGame() {
-    if (currentGameCountry && countryLayers[currentGameCountry]) {
-      geojsonLayer.resetStyle(countryLayers[currentGameCountry]);
-    }
-    const randomIndex = Math.floor(Math.random() * allCountries.length);
-    currentGameCountry = allCountries[randomIndex];
-    const targetLayer = countryLayers[currentGameCountry];
-    if (targetLayer) {
-      geojsonLayer.resetStyle();
-      targetLayer.setStyle({ color: "green", weight: 4, fillOpacity: 0.2 });
-      targetLayer.bringToFront();
-    }
-    gameFeedback.textContent = "";
-    gameGuessInput.value = "";
-  }
-
-  // Process user's guess
-  submitGuessBtn.addEventListener("click", function() {
-    if (!gameActive) return;
-    const userGuess = gameGuessInput.value.trim();
-    if (userGuess.toLowerCase() === currentGameCountry.toLowerCase()) {
-      gameFeedback.textContent = "Correct! Well done.";
-      setTimeout(() => {
-        startNewGame();
-      }, 2000);
-    } else {
-      gameFeedback.textContent = "Incorrect. Try again!";
-    }
-  });
-
-  newGameBtn.addEventListener("click", startNewGame);
-
-  // ===== Custom Marker Example =====
-  const customIcon = L.icon({
-    iconUrl: "images/cars1.jpeg",
-    iconSize: [25, 25],
-    iconAnchor: [12, 25],
-    popupAnchor: [0, -25]
-  });
-  L.marker([40.7128, -74.0060], { icon: customIcon })
-    .addTo(map)
-    .bindPopup("Custom Lightning McQueen", { maxWidth: 150 });
-
-  // Event listener for clearing visited countries
-  const clearVisitedBtn = document.getElementById("clearVisitedBtn");
-  clearVisitedBtn.addEventListener("click", function() {
-    visitedCountries = [];
-    updateVisitedList();
-    localStorage.removeItem("visitedCountries");
-  });
-
-  // Event listener for entering map from homepage overlay
-  const enterMapBtn = document.getElementById("enterMapBtn");
-  if (enterMapBtn) {
-    enterMapBtn.addEventListener("click", function() {
-      const homepage = document.getElementById("homepage");
-      homepage.style.display = "none";
-      // Invalidate map size in case of rendering issues
-      map.invalidateSize();
-    });
-  }
+  // Populate the dropdown lists on load
+  populateComparisonDropdowns();
 });
