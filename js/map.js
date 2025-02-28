@@ -256,11 +256,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Event listener for clearing visited countries
   const clearVisitedBtn = document.getElementById("clearVisitedBtn");
-  clearVisitedBtn.addEventListener("click", function() {
+clearVisitedBtn.addEventListener("click", function() {
+  if (confirm("Are you sure you want to clear your visited countries?")) {
     visitedCountries = [];
     updateVisitedList();
     localStorage.removeItem("visitedCountries");
-  });
+  }
+});
 
   // Event listener for entering map from homepage overlay
   const enterMapBtn = document.getElementById("enterMapBtn");
