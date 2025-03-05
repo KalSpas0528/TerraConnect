@@ -315,6 +315,39 @@ body {
   color: #000;
 }
 
+/* Search Bar Styling */
+.search-bar {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100;
+  display: flex;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.search-bar input {
+  border: none;
+  padding: 8px;
+  font-size: 14px;
+  border-radius: 4px 0 0 4px;
+  outline: none;
+}
+.search-bar button {
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  background: #007bff;
+  color: #fff;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.search-bar button:hover {
+  background: #0056b3;
+}
+
 /* Responsiveness */
 @media (max-width: 768px) {
   #map {

@@ -256,14 +256,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Event listener for clearing visited countries
   const clearVisitedBtn = document.getElementById("clearVisitedBtn");
-clearVisitedBtn.addEventListener("click", function() {
-  if (confirm("Are you sure you want to clear your visited countries?")) {
-    visitedCountries = [];
-    updateVisitedList();
-    localStorage.removeItem("visitedCountries");
-  }
-});
-
+  clearVisitedBtn.addEventListener("click", function() {
+    if (confirm("Are you sure you want to clear your visited countries?")) {
+      visitedCountries = [];
+      updateVisitedList();
+      localStorage.removeItem("visitedCountries");
+    }
+  });
+ 
   // Event listener for entering map from homepage overlay
   const enterMapBtn = document.getElementById("enterMapBtn");
   if (enterMapBtn) {
@@ -274,4 +274,32 @@ clearVisitedBtn.addEventListener("click", function() {
       map.invalidateSize();
     });
   }
+
+  // ===== SEARCH FUNCTIONALITY =====
+  const searchInput = document.getElementById("searchInput");
+  const searchBtn = document.getElementById("searchBtn");
+
+  searchBtn.addEventListener("click", () => {
+    const query = searchInput.value.trim();
+    if (query === "") return;
+    const standardizedQuery = standardizeCountryName(query);
+    if (countryLayers[standardizedQuery]) {
+      const layer = countryLayers[standardizedQuery];
+      const bounds = layer.getBounds();
+      map.fitBounds(bounds, { maxZoom: 6 });
+      // Briefly highlight the country
+      layer.setStyle({ color: "orange", weight: 4 });
+      setTimeout(() => {
+        geojsonLayer.resetStyle(layer);
+      }, 2000);
+    } else {
+      alert("Country not found. Please check your spelling or try another country.");
+    }
+  });
+
+  searchInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      searchBtn.click();
+    }
+  });
 });
