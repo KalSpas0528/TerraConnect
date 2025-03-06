@@ -282,12 +282,13 @@ document.addEventListener("DOMContentLoaded", () => {
   searchBtn.addEventListener("click", () => {
     const query = searchInput.value.trim();
     if (query === "") return;
-    const standardizedQuery = standardizeCountryName(query);
-    if (countryLayers[standardizedQuery]) {
-      const layer = countryLayers[standardizedQuery];
+    // Use case-insensitive matching instead of just standardizing
+    const foundKey = Object.keys(countryLayers).find(key => key.toLowerCase() === query.toLowerCase());
+    if (foundKey) {
+      const layer = countryLayers[foundKey];
       const bounds = layer.getBounds();
       map.fitBounds(bounds, { maxZoom: 6 });
-      // Briefly highlight the country
+      // Briefly highlight the country in orange
       layer.setStyle({ color: "orange", weight: 4 });
       setTimeout(() => {
         geojsonLayer.resetStyle(layer);
