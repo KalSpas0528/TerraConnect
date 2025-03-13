@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize Map
   const map = L.map("map", { minZoom: 2, tap: true }).setView([20, 0], 2);
-
   L.tileLayer("https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png", {
     attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
@@ -23,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Marker Toggle Control (with state preservation for game mode)
   let markersEnabled = true;
-  let previousMarkersEnabled = markersEnabled; // preserve state before game mode
+  let previousMarkersEnabled = markersEnabled;
   const markerToggleControl = L.control({ position: "topright" });
   markerToggleControl.onAdd = function () {
     const div = L.DomUtil.create("div", "leaflet-bar");
@@ -32,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     button.style.backgroundColor = "white";
     button.onclick = function (e) {
       e.preventDefault();
-      if (gameActive) return; // prevent toggling during game mode
+      if (gameActive) return;
       markersEnabled = !markersEnabled;
       button.innerHTML = markersEnabled ? "Markers: ON" : "Markers: OFF";
     };
@@ -40,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   markerToggleControl.addTo(map);
 
-  // Map click: add marker if markers are enabled and game is not active
+  // Add marker on map click if allowed
   map.on("click", function (e) {
     if (!markersEnabled || gameActive) return;
     const lat = e.latlng.lat;
@@ -54,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .openPopup();
   });
 
-  // Update visited countries list UI & save to localStorage
+  // Update visited countries UI and save to localStorage
   function updateVisitedList() {
     const visitedListElem = document.getElementById("visited-list");
     if (visitedListElem) {
@@ -64,41 +63,32 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   updateVisitedList();
 
-  // Load GeoJSON for countries
+  // Load GeoJSON for countries and create layers
   fetch("countries.geojson")
     .then(response => response.json())
     .then(data => {
       // Populate list of country names
       data.features.forEach(feature => {
-        let countryName = feature.properties.name;
-        countryName = standardizeCountryName(countryName);
+        let countryName = standardizeCountryName(feature.properties.name);
         if (!allCountries.includes(countryName)) {
           allCountries.push(countryName);
         }
       });
 
-      // Create GeoJSON layer and store each country layer for game highlighting
+      // Create GeoJSON layer and attach click events for each country
       geojsonLayer = L.geoJSON(data, {
-        style: function () {
-          return { color: "blue", weight: 1, fillOpacity: 0 };
-        },
-        onEachFeature: function (feature, layer) {
-          let countryName = feature.properties.name;
-          countryName = standardizeCountryName(countryName);
+        style: () => ({ color: "blue", weight: 1, fillOpacity: 0 }),
+        onEachFeature: (feature, layer) => {
+          let countryName = standardizeCountryName(feature.properties.name);
           countryLayers[countryName] = layer;
-
-          // Attach click event for normal (non‑game) interactions
-          layer.on("click", function () {
-            if (gameActive) return; // Disable clicks during game mode
+          layer.on("click", () => {
+            if (gameActive) return;
             geojsonLayer.resetStyle();
             layer.setStyle({ color: "red", weight: 3 });
-
-            // Save as visited country
             if (!visitedCountries.includes(countryName)) {
               visitedCountries.push(countryName);
               updateVisitedList();
             }
-
             const popupContent = `
               <div class="country-popup">
                 <h3>${countryName}</h3>
@@ -114,13 +104,18 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .catch(err => console.error("Error loading countries GeoJSON:", err));
 
-  // Fetch Wikipedia summary
-  function fetchWikipediaSummary(country) {
+  // Fetch Wikipedia summary using async/await for improved error handling
+  async function fetchWikipediaSummary(country) {
     const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(country)}`;
-    return fetch(url)
-      .then(response => response.json())
-      .then(data => data.extract || "No summary available.")
-      .catch(() => "Error fetching summary.");
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Network error");
+      const data = await response.json();
+      return data.extract || "No summary available.";
+    } catch (error) {
+      console.error("Error fetching Wikipedia summary:", error);
+      return "Error fetching summary.";
+    }
   }
 
   // Standardize country names for consistency
@@ -138,20 +133,20 @@ document.addEventListener("DOMContentLoaded", () => {
     return countryMap[country] || country;
   }
 
-  // Attach event listener for popup summary toggle
+  // Toggle Wikipedia summary display on popup open
   map.on("popupopen", function (e) {
     const popupNode = e.popup.getElement();
     const button = popupNode.querySelector(".toggle-summary");
     if (button) {
-      button.addEventListener("click", function () {
+      button.addEventListener("click", async function () {
         const country = button.getAttribute("data-country");
         const summaryDiv = popupNode.querySelector(".wiki-summary");
         if (summaryDiv.style.display === "none") {
-          fetchWikipediaSummary(country).then(summary => {
-            summaryDiv.innerHTML = summary;
-            summaryDiv.style.display = "block";
-            button.textContent = "Hide Wikipedia Summary";
-          });
+          summaryDiv.innerHTML = "Loading summary...";
+          const summary = await fetchWikipediaSummary(country);
+          summaryDiv.innerHTML = summary;
+          summaryDiv.style.display = "block";
+          button.textContent = "Hide Wikipedia Summary";
         } else {
           summaryDiv.style.display = "none";
           button.textContent = "Show Wikipedia Summary";
@@ -161,8 +156,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ===== GAME FUNCTIONALITY =====
-
-  // Elements for game modal
   const gameModal = document.getElementById("gameModal");
   const closeGameModal = document.getElementById("closeGameModal");
   const submitGuessBtn = document.getElementById("submit-guess-btn");
@@ -170,7 +163,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const gameFeedback = document.getElementById("game-feedback");
   const gameGuessInput = document.getElementById("game-guess");
 
-  // Start Game Button in Sidebar
   const startGameBtn = document.getElementById("startGameBtn");
   startGameBtn.addEventListener("click", () => {
     if (allCountries.length === 0) {
@@ -180,7 +172,6 @@ document.addEventListener("DOMContentLoaded", () => {
     startGameMode();
   });
 
-  // Start game mode: disable markers & normal clicks, show modal, pick a target, and save current marker state
   function startGameMode() {
     gameActive = true;
     previousMarkersEnabled = markersEnabled;
@@ -189,7 +180,6 @@ document.addEventListener("DOMContentLoaded", () => {
     startNewGame();
   }
 
-  // End game mode: hide modal, restore marker state, reset target highlight
   function endGameMode() {
     gameActive = false;
     markersEnabled = previousMarkersEnabled;
@@ -202,7 +192,6 @@ document.addEventListener("DOMContentLoaded", () => {
     gameGuessInput.value = "";
   }
 
-  // Close game modal events
   closeGameModal.addEventListener("click", endGameMode);
   window.addEventListener("click", function(e) {
     if (e.target === gameModal) {
@@ -210,7 +199,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Start a new game round: pick a random country and highlight it
   function startNewGame() {
     if (currentGameCountry && countryLayers[currentGameCountry]) {
       geojsonLayer.resetStyle(countryLayers[currentGameCountry]);
@@ -227,7 +215,6 @@ document.addEventListener("DOMContentLoaded", () => {
     gameGuessInput.value = "";
   }
 
-  // Process user's guess
   submitGuessBtn.addEventListener("click", function() {
     if (!gameActive) return;
     const userGuess = gameGuessInput.value.trim();
@@ -240,7 +227,6 @@ document.addEventListener("DOMContentLoaded", () => {
       gameFeedback.textContent = "Incorrect. Try again!";
     }
   });
-
   newGameBtn.addEventListener("click", startNewGame);
 
   // ===== Custom Marker Example =====
@@ -254,7 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .addTo(map)
     .bindPopup("Custom Lightning McQueen", { maxWidth: 150 });
 
-  // Event listener for clearing visited countries
+  // Clear visited countries event
   const clearVisitedBtn = document.getElementById("clearVisitedBtn");
   clearVisitedBtn.addEventListener("click", function() {
     if (confirm("Are you sure you want to clear your visited countries?")) {
@@ -263,14 +249,13 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.removeItem("visitedCountries");
     }
   });
- 
-  // Event listener for entering map from homepage overlay
+
+  // Hide homepage overlay and revalidate map size
   const enterMapBtn = document.getElementById("enterMapBtn");
   if (enterMapBtn) {
     enterMapBtn.addEventListener("click", function() {
       const homepage = document.getElementById("homepage");
       homepage.style.display = "none";
-      // Invalidate map size in case of rendering issues
       map.invalidateSize();
     });
   }
@@ -282,13 +267,11 @@ document.addEventListener("DOMContentLoaded", () => {
   searchBtn.addEventListener("click", () => {
     const query = searchInput.value.trim();
     if (query === "") return;
-    // Use case-insensitive matching instead of just standardizing
     const foundKey = Object.keys(countryLayers).find(key => key.toLowerCase() === query.toLowerCase());
     if (foundKey) {
       const layer = countryLayers[foundKey];
       const bounds = layer.getBounds();
       map.fitBounds(bounds, { maxZoom: 6 });
-      // Briefly highlight the country in orange
       layer.setStyle({ color: "orange", weight: 4 });
       setTimeout(() => {
         geojsonLayer.resetStyle(layer);

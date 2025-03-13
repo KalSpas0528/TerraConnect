@@ -1,7 +1,8 @@
+/* Global Styles */
 body {
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Arial', sans-serif;
 }
 
 #map {
@@ -69,6 +70,7 @@ body {
   max-width: 300px;
   padding: 10px;
   font-size: 14px;
+  border-radius: 8px;
 }
 .leaflet-popup-content {
   margin: 0;
@@ -113,7 +115,7 @@ body {
   line-height: 1.4;
 }
 
-/* Visited Countries Sidebar (Updated Styling) */
+/* Visited Countries Sidebar */
 .sidebar {
   position: fixed;
   right: 10px;
@@ -125,7 +127,6 @@ body {
   max-height: 80vh;
   overflow-y: auto;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  border: none;
   font-family: 'Poppins', sans-serif;
 }
 .sidebar .sidebar-header {
@@ -168,7 +169,7 @@ body {
   background: #c82333;
 }
 
-/* Game Modal Styling (Updated for Consistency) */
+/* Game Modal Styling */
 .modal {
   display: none;
   position: fixed;
@@ -178,7 +179,6 @@ body {
   width: 320px;
   background: transparent;
 }
-
 .modal-content {
   background-color: #fff;
   padding: 20px;
@@ -232,9 +232,9 @@ body {
   font-size: 14px;
 }
 
-/* Country Comparison Modal Styling (Updated for Consistency) */
+/* Country Comparison Modal Styling */
 #comparisonModal {
-  display: none; /* Hidden by default */
+  display: none;
   position: fixed;
   z-index: 1300;
   left: 0;
@@ -299,8 +299,6 @@ body {
   font-size: 18px;
   color: #007bff;
 }
-
-/* Close Button for Comparison Modal */
 .close-comparison {
   position: absolute;
   top: 8px;
