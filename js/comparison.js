@@ -109,16 +109,4 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Compare button not found in the modal.");
   }
 
-  // Close the modal when the close button is clicked or when clicking outside the modal content
-  closeComparisonModal.addEventListener("click", () => {
-    comparisonModal.style.display = "none";
-  });
-  window.addEventListener("click", (event) => {
-    if (event.target === comparisonModal) {
-      comparisonModal.style.display = "none";
-    }
-  });
-
-  // Populate the dropdown lists on load
-  populateComparisonDropdowns();
-});
+  // Close the modal when the close
