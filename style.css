@@ -407,3 +407,83 @@ body {
     width: 200px;
   }
 }
+/* Global Styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+}
+
+#map {
+  height: 100vh;
+  width: 100%;
+}
+
+/* Homepage Overlay */
+.homepage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1200;
+  text-align: center;
+}
+
+/* News Feature Styles */
+.news-section {
+  position: fixed;
+  right: 280px;
+  top: 50px;
+  width: 300px;
+  max-height: 80vh;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 15px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.news-article {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.news-article:last-child {
+  border-bottom: none;
+}
+
+.news-article h3 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+}
+
+.news-article h3 a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.news-article h3 a:hover {
+  text-decoration: underline;
+}
+
+.news-article p {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #666;
+}
+
+.news-article small {
+  font-size: 12px;
+  color: #999;
+}
+
+/* Rest of your existing styles... */

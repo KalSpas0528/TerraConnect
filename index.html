@@ -6,55 +6,12 @@
   <title>TerraConnect</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <link rel="stylesheet" href="style.css">
-  <style>
-    /* Homepage Background Style */
-    #homepage {
-      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
-                  url('https://images.unsplash.com/photo-1518709268802-4e9042af9f23?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
-      background-size: cover;
-      background-position: center;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 20px;
-      color: #fff;
-    }
-    
-    #homepage h1 {
-      font-size: 3em;
-      margin-bottom: 0.5em;
-    }
-    
-    #homepage p {
-      font-size: 1.2em;
-      margin-bottom: 1em;
-      max-width: 800px;
-    }
-    
-    #homepage button {
-      padding: 12px 30px;
-      font-size: 1em;
-      background-color: #ff5722;
-      border: none;
-      border-radius: 5px;
-      color: #fff;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    
-    #homepage button:hover {
-      background-color: #e64a19;
-    }
-  </style>
 </head>
 <body>
   <!-- Homepage Overlay -->
   <div id="homepage" class="homepage">
     <h1>Welcome to TerraConnect</h1>
-    <p>Embark on a global adventure with TerraConnect! Explore interactive maps, uncover live news, discover fascinating cultural facts, and gain unique insights from countries around the world. Let geography meet technology in this engaging, interactive experience.</p>
+    <p>Embark on a global adventure with TerraConnect! Explore interactive maps, uncover live news, discover fascinating cultural facts, and gain unique insights from countries around the world.</p>
     <p>"Travel the globe, explore the unknown, and make every country your own©™!"</p>
     <button id="enterMapBtn">Enter Map</button>
   </div>
@@ -68,15 +25,12 @@
   <!-- Map Container -->
   <div id="map"></div>
 
-  <!-- News Feature Placeholder -->
+  <!-- News Section -->
   <div id="newsSection" class="news-section">
-    <h2>Latest News (Prototype)</h2>
-    <p>This is a placeholder for the upcoming news feature. Stay tuned for updates!</p>
-    <button id="loadNewsBtn">Load Latest News</button>
-    <div id="newsContent" class="news-content"></div>
+    <div id="newsContent"></div>
   </div>
 
-  <!-- Game Modal (small floating window) -->
+  <!-- Game Modal -->
   <div id="gameModal" class="modal">
     <div class="modal-content">
       <span id="closeGameModal" class="close" aria-label="Close game modal">&times;</span>
@@ -117,8 +71,8 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-  <script src="js/map.js"></script>
-  <script src="js/comparision.js"></script>
+  <script src="map.js"></script>
+  <script src="comparison.js"></script>
   <script src="news.js"></script>
 </body>
 </html>
