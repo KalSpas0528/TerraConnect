@@ -89,6 +89,13 @@ document.addEventListener("DOMContentLoaded", () => {
               visitedCountries.push(countryName);
               updateVisitedList();
             }
+            
+            // Dispatch custom event for news feature
+            const event = new CustomEvent('countrySelected', {
+              detail: { country: countryName }
+            });
+            document.dispatchEvent(event);
+            
             const popupContent = `
               <div class="country-popup">
                 <h3>${countryName}</h3>
