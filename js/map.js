@@ -293,5 +293,5 @@ function initMapApp() {
       searchBtn.click();
     }
   });
+} 
 document.addEventListener("DOMContentLoaded", initMapApp);
-}
