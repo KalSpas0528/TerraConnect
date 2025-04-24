@@ -110,3 +110,4 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Close the modal when the close
+});
