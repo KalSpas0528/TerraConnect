@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+function initMapApp() {
   // Global Variables
   let allCountries = [];
   let visitedCountries = JSON.parse(localStorage.getItem("visitedCountries") || "[]");
@@ -293,4 +293,5 @@ document.addEventListener("DOMContentLoaded", () => {
       searchBtn.click();
     }
   });
-});
+document.addEventListener("DOMContentLoaded", initMapApp);
+}
