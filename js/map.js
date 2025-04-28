@@ -1,17 +1,16 @@
+// === map.js (Fixed & Improved) ===
+
 function initMapApp() {
-  // Global Variables
   let allCountries = [];
   let visitedCountries = JSON.parse(localStorage.getItem("visitedCountries") || "[]");
   let gameActive = false;
   let currentGameCountry = null;
   let geojsonLayer;
-  const countryLayers = {}; // Mapping standardized country name → corresponding layer
+  const countryLayers = {};
 
-  // Initialize Map
   const map = L.map("map", { minZoom: 2, tap: true }).setView([20, 0], 2);
   L.tileLayer("https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png", {
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
     noWrap: true,
     maxZoom: 19,
     minZoom: 2,
@@ -20,16 +19,16 @@ function initMapApp() {
   const bounds = L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180));
   map.setMaxBounds(bounds);
 
-  // Marker Toggle Control (with state preservation for game mode)
+  // === Marker Toggle Control ===
   let markersEnabled = true;
-  let previousMarkersEnabled = markersEnabled;
+  let previousMarkersEnabled = true;
   const markerToggleControl = L.control({ position: "topright" });
   markerToggleControl.onAdd = function () {
     const div = L.DomUtil.create("div", "leaflet-bar");
     const button = L.DomUtil.create("button", "", div);
     button.innerHTML = "Markers: ON";
     button.style.backgroundColor = "white";
-    button.onclick = function (e) {
+    button.onclick = (e) => {
       e.preventDefault();
       if (gameActive) return;
       markersEnabled = !markersEnabled;
@@ -39,21 +38,15 @@ function initMapApp() {
   };
   markerToggleControl.addTo(map);
 
-  // Add marker on map click if allowed
   map.on("click", function (e) {
     if (!markersEnabled || gameActive) return;
-    const lat = e.latlng.lat;
-    const lng = e.latlng.lng;
+    const { lat, lng } = e.latlng;
     L.marker([lat, lng])
       .addTo(map)
-      .bindPopup(
-        `<b>Clicked location:</b><br>Latitude: ${lat.toFixed(4)}<br>Longitude: ${lng.toFixed(4)}`,
-        { maxWidth: 300 }
-      )
+      .bindPopup(`<b>Clicked location:</b><br>Latitude: ${lat.toFixed(4)}<br>Longitude: ${lng.toFixed(4)}`)
       .openPopup();
   });
 
-  // Update visited countries UI and save to localStorage
   function updateVisitedList() {
     const visitedListElem = document.getElementById("visited-list");
     if (visitedListElem) {
@@ -61,25 +54,35 @@ function initMapApp() {
     }
     localStorage.setItem("visitedCountries", JSON.stringify(visitedCountries));
   }
-  updateVisitedList();
 
-  // Load GeoJSON for countries and create layers
+  function standardizeCountryName(country) {
+    const countryMap = {
+      "United States": "United States",
+      "United States of America": "United States",
+      "USA": "United States",
+      "UK": "United Kingdom",
+      "Russian Federation": "Russia",
+      "greatest country ever": "Bulgaria",
+      "South Korea": "Korea, Republic of",
+      "North Korea": "Korea, Democratic People's Republic of",
+    };
+    return countryMap[country] || country;
+  }
+
   fetch("countries.geojson")
     .then(response => response.json())
     .then(data => {
-      // Populate list of country names
       data.features.forEach(feature => {
-        let countryName = standardizeCountryName(feature.properties.name);
+        const countryName = standardizeCountryName(feature.properties.name);
         if (!allCountries.includes(countryName)) {
           allCountries.push(countryName);
         }
       });
 
-      // Create GeoJSON layer and attach click events for each country
       geojsonLayer = L.geoJSON(data, {
-        style: () => ({ color: "blue", weight: 1, fillOpacity: 0 }),
+        style: { color: "blue", weight: 1, fillOpacity: 0 },
         onEachFeature: (feature, layer) => {
-          let countryName = standardizeCountryName(feature.properties.name);
+          const countryName = standardizeCountryName(feature.properties.name);
           countryLayers[countryName] = layer;
           layer.on("click", () => {
             if (gameActive) return;
@@ -89,13 +92,9 @@ function initMapApp() {
               visitedCountries.push(countryName);
               updateVisitedList();
             }
-            
-            // Dispatch custom event for news feature
-            const event = new CustomEvent('countrySelected', {
+            document.dispatchEvent(new CustomEvent('countrySelected', {
               detail: { country: countryName }
-            });
-            document.dispatchEvent(event);
-            
+            }));
             const popupContent = `
               <div class="country-popup">
                 <h3>${countryName}</h3>
@@ -111,7 +110,6 @@ function initMapApp() {
     })
     .catch(err => console.error("Error loading countries GeoJSON:", err));
 
-  // Fetch Wikipedia summary using async/await for improved error handling
   async function fetchWikipediaSummary(country) {
     const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(country)}`;
     try {
@@ -125,22 +123,6 @@ function initMapApp() {
     }
   }
 
-  // Standardize country names for consistency
-  function standardizeCountryName(country) {
-    const countryMap = {
-      "United States": "United States",
-      "United States of America": "United States",
-      "USA": "United States",
-      "greatest country ever": "Bulgaria",
-      "France": "France",
-      "Russian Federation": "Russia",
-      "United Kingdom": "United Kingdom",
-      "UK": "United Kingdom",
-    };
-    return countryMap[country] || country;
-  }
-
-  // Toggle Wikipedia summary display on popup open
   map.on("popupopen", function (e) {
     const popupNode = e.popup.getElement();
     const button = popupNode.querySelector(".toggle-summary");
@@ -162,15 +144,15 @@ function initMapApp() {
     }
   });
 
-  // ===== GAME FUNCTIONALITY =====
+  // === Game ===
   const gameModal = document.getElementById("gameModal");
   const closeGameModal = document.getElementById("closeGameModal");
   const submitGuessBtn = document.getElementById("submit-guess-btn");
   const newGameBtn = document.getElementById("new-game-btn");
   const gameFeedback = document.getElementById("game-feedback");
   const gameGuessInput = document.getElementById("game-guess");
-
   const startGameBtn = document.getElementById("startGameBtn");
+
   startGameBtn.addEventListener("click", () => {
     if (allCountries.length === 0) {
       alert("Countries data is still loading. Please wait.");
@@ -199,13 +181,6 @@ function initMapApp() {
     gameGuessInput.value = "";
   }
 
-  closeGameModal.addEventListener("click", endGameMode);
-  window.addEventListener("click", function(e) {
-    if (e.target === gameModal) {
-      endGameMode();
-    }
-  });
-
   function startNewGame() {
     if (currentGameCountry && countryLayers[currentGameCountry]) {
       geojsonLayer.resetStyle(countryLayers[currentGameCountry]);
@@ -222,7 +197,14 @@ function initMapApp() {
     gameGuessInput.value = "";
   }
 
-  submitGuessBtn.addEventListener("click", function() {
+  closeGameModal.addEventListener("click", endGameMode);
+  window.addEventListener("click", (e) => {
+    if (e.target === gameModal) {
+      endGameMode();
+    }
+  });
+
+  submitGuessBtn.addEventListener("click", () => {
     if (!gameActive) return;
     const userGuess = gameGuessInput.value.trim();
     if (userGuess.toLowerCase() === currentGameCountry.toLowerCase()) {
@@ -234,22 +216,11 @@ function initMapApp() {
       gameFeedback.textContent = "Incorrect. Try again!";
     }
   });
+
   newGameBtn.addEventListener("click", startNewGame);
 
-  // ===== Custom Marker Example =====
-  const customIcon = L.icon({
-    iconUrl: "images/cars1.jpeg",
-    iconSize: [25, 25],
-    iconAnchor: [12, 25],
-    popupAnchor: [0, -25]
-  });
-  L.marker([40.7128, -74.0060], { icon: customIcon })
-    .addTo(map)
-    .bindPopup("Custom Lightning McQueen", { maxWidth: 150 });
-
-  // Clear visited countries event
   const clearVisitedBtn = document.getElementById("clearVisitedBtn");
-  clearVisitedBtn.addEventListener("click", function() {
+  clearVisitedBtn.addEventListener("click", () => {
     if (confirm("Are you sure you want to clear your visited countries?")) {
       visitedCountries = [];
       updateVisitedList();
@@ -257,41 +228,39 @@ function initMapApp() {
     }
   });
 
-  // Hide homepage overlay and revalidate map size
   const enterMapBtn = document.getElementById("enterMapBtn");
   if (enterMapBtn) {
-    enterMapBtn.addEventListener("click", function() {
+    enterMapBtn.addEventListener("click", () => {
       const homepage = document.getElementById("homepage");
       homepage.style.display = "none";
       map.invalidateSize();
     });
   }
 
-  // ===== SEARCH FUNCTIONALITY =====
+  // === Search ===
   const searchInput = document.getElementById("searchInput");
   const searchBtn = document.getElementById("searchBtn");
 
   searchBtn.addEventListener("click", () => {
     const query = searchInput.value.trim();
-    if (query === "") return;
+    if (!query) return;
     const foundKey = Object.keys(countryLayers).find(key => key.toLowerCase() === query.toLowerCase());
     if (foundKey) {
       const layer = countryLayers[foundKey];
       const bounds = layer.getBounds();
       map.fitBounds(bounds, { maxZoom: 6 });
       layer.setStyle({ color: "orange", weight: 4 });
-      setTimeout(() => {
-        geojsonLayer.resetStyle(layer);
-      }, 2000);
+      setTimeout(() => geojsonLayer.resetStyle(layer), 2000);
     } else {
       alert("Country not found. Please check your spelling or try another country.");
     }
   });
 
-  searchInput.addEventListener("keydown", function (e) {
+  searchInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       searchBtn.click();
     }
   });
-} 
+}
+
 document.addEventListener("DOMContentLoaded", initMapApp);

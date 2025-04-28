@@ -79,5 +79,4 @@ TerraConnect provides a seamless blend of geographical exploration and interacti
 
 
 
->>>>>>> 6d73eeb82cc29a0f1819b97f4f19727a123f6aa0
 

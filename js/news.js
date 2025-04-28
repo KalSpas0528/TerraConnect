@@ -1,4 +1,5 @@
-// news.js
+// === news.js (Fixed & Improved) ===
+
 const GNEWS_API_KEY = "f722aee7a01c3aadf85deec3f2069229";
 
 async function fetchCountryNews(country) {
@@ -15,7 +16,10 @@ async function fetchCountryNews(country) {
 
 function initNewsFeature() {
   const newsContent = document.getElementById('newsContent');
-  if (!newsContent) return;
+  if (!newsContent) {
+    console.error("#newsContent element not found.");
+    return;
+  }
 
   document.addEventListener('countrySelected', async (e) => {
     const countryName = e.detail.country;
@@ -27,13 +31,13 @@ function initNewsFeature() {
     if (!articles) {
       newsContent.innerHTML = `<p>Error loading news. Please try again later.</p>`;
     } else if (articles.length === 0) {
-      newsContent.innerHTML = `<p>No recent news found for ${countryName}.</p>`;
+      newsContent.innerHTML = `<p>No recent news found for <strong>${countryName}</strong>.</p>`;
     } else {
       const newsHTML = articles.map(article => `
         <div class="news-article">
           <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
-          <p>${article.description || ''}</p>
-          <small>Source: ${article.source.name} | ${new Date(article.publishedAt).toLocaleDateString()}</small>
+          <p>${article.description ? article.description : "No description available."}</p>
+          <small>Source: ${article.source.name || "Unknown"} | ${new Date(article.publishedAt).toLocaleDateString()}</small>
         </div>
       `).join('');
 
@@ -45,4 +49,8 @@ function initNewsFeature() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", initNewsFeature);
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initNewsFeature);
+} else {
+  initNewsFeature();
+}
