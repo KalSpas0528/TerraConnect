@@ -98,11 +98,14 @@ function initMapApp() {
               visitedCountries.push(countryName)
               updateVisitedList()
             }
+
+            // Dispatch the country selection event
             document.dispatchEvent(
               new CustomEvent("countrySelected", {
                 detail: { country: countryName },
               }),
             )
+
             const popupContent = `
               <div class="country-popup">
                 <h3>${countryName}</h3>
@@ -288,6 +291,21 @@ function initMapApp() {
     map.invalidateSize()
     console.log("Map size recalculated")
   }, 500)
+
+  // Make sure the map is visible when the Enter Map button is clicked
+  const enterMapBtn2 = document.getElementById("enterMapBtn")
+  if (enterMapBtn2) {
+    enterMapBtn2.addEventListener("click", () => {
+      const homepage = document.getElementById("homepage")
+      if (homepage) {
+        homepage.style.display = "none"
+      }
+      setTimeout(() => {
+        map.invalidateSize()
+        console.log("Map size recalculated after entering")
+      }, 100)
+    })
+  }
 }
 
 // Initialize the map when the DOM is fully loaded
