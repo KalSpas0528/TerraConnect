@@ -1,56 +1,70 @@
 // === news.js (Fixed & Improved) ===
 
-const GNEWS_API_KEY = "f722aee7a01c3aadf85deec3f2069229";
+// Using Gnews API with your API key
+const GNEWS_API_KEY = "f722aee7a01c3aadf85deec3f2069229"
 
 async function fetchCountryNews(country) {
   try {
-    const response = await fetch(`https://gnews.io/api/v4/search?q=${encodeURIComponent(country)}&lang=en&max=5&apikey=${GNEWS_API_KEY}`);
-    if (!response.ok) throw new Error("API error");
-    const data = await response.json();
-    return data.articles || [];
+    console.log(`Fetching news for ${country}`)
+    const response = await fetch(
+      `https://gnews.io/api/v4/search?q=${encodeURIComponent(country)}&lang=en&max=5&apikey=${GNEWS_API_KEY}`,
+    )
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`)
+    }
+
+    const data = await response.json()
+    console.log("News data received:", data)
+    return data.articles || []
   } catch (error) {
-    console.error("News fetch failed:", error);
-    return null;
+    console.error("News fetch failed:", error)
+    return null
   }
 }
 
 function initNewsFeature() {
-  const newsContent = document.getElementById('newsContent');
+  const newsContent = document.getElementById("newsContent")
   if (!newsContent) {
-    console.error("#newsContent element not found.");
-    return;
+    console.error("#newsContent element not found.")
+    return
   }
 
-  document.addEventListener('countrySelected', async (e) => {
-    const countryName = e.detail.country;
-    if (!countryName) return;
+  document.addEventListener("countrySelected", async (e) => {
+    const countryName = e.detail.country
+    if (!countryName) return
 
-    newsContent.innerHTML = '<p>Loading news...</p>';
-    const articles = await fetchCountryNews(countryName);
+    newsContent.innerHTML = "<p>Loading news...</p>"
+    const articles = await fetchCountryNews(countryName)
 
     if (!articles) {
-      newsContent.innerHTML = `<p>Error loading news. Please try again later.</p>`;
+      newsContent.innerHTML = `<p>Error loading news. Please try again later.</p>`
     } else if (articles.length === 0) {
-      newsContent.innerHTML = `<p>No recent news found for <strong>${countryName}</strong>.</p>`;
+      newsContent.innerHTML = `<p>No recent news found for <strong>${countryName}</strong>.</p>`
     } else {
-      const newsHTML = articles.map(article => `
+      const newsHTML = articles
+        .map(
+          (article) => `
         <div class="news-article">
           <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
           <p>${article.description ? article.description : "No description available."}</p>
           <small>Source: ${article.source.name || "Unknown"} | ${new Date(article.publishedAt).toLocaleDateString()}</small>
         </div>
-      `).join('');
+      `,
+        )
+        .join("")
 
       newsContent.innerHTML = `
         <h2>Latest News about ${countryName}</h2>
         ${newsHTML}
-      `;
+      `
     }
-  });
+  })
 }
 
+// Initialize the news feature when the DOM is loaded
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initNewsFeature);
+  document.addEventListener("DOMContentLoaded", initNewsFeature)
 } else {
-  initNewsFeature();
+  initNewsFeature()
 }
