@@ -1,20 +1,82 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Interactive Map</title>
+    <title>TerraConnect: Global Interactive News Map</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <style>
-        #map { height: 500px; }
-    </style>
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <h1>Interactive Map</h1>
+    <!-- Homepage Overlay -->
+    <div id="homepage" class="homepage">
+        <h1>TerraConnect</h1>
+        <p>Explore the world map, discover country information, and read the latest news.</p>
+        <button id="enterMapBtn">Enter Map</button>
+    </div>
+
+    <!-- Map Container -->
     <div id="map"></div>
 
+    <!-- Search Bar -->
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search for a country...">
+        <button id="searchBtn">Search</button>
+    </div>
+
+    <!-- Visited Countries Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">Visited Countries</div>
+        <ul id="visited-list"></ul>
+        <button id="clearVisitedBtn">Clear Visited</button>
+        <button id="startGameBtn">Start Guessing Game</button>
+        <button id="compareCountriesBtn">Compare Countries</button>
+    </div>
+
+    <!-- News Section -->
+    <div class="news-section">
+        <h2>Country News</h2>
+        <p>Click on a country to see the latest news.</p>
+        <div id="newsContent" class="news-content"></div>
+    </div>
+
+    <!-- Game Modal -->
+    <div id="gameModal" class="modal">
+        <div class="modal-content">
+            <span id="closeGameModal" class="close">&times;</span>
+            <h2>Country Guessing Game</h2>
+            <p>Can you guess the highlighted country?</p>
+            <input type="text" id="game-guess" placeholder="Enter country name...">
+            <div id="game-feedback"></div>
+            <div class="game-buttons">
+                <button id="submit-guess-btn">Submit Guess</button>
+                <button id="new-game-btn">New Country</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Country Comparison Modal -->
+    <div id="comparisonModal" class="modal">
+        <div class="comparison-content">
+            <span id="closeComparisonModal" class="close-comparison">&times;</span>
+            <h2>Compare Countries</h2>
+            <div>
+                <select id="country1">
+                    <option value="">Select first country</option>
+                </select>
+                <select id="country2">
+                    <option value="">Select second country</option>
+                </select>
+                <button id="compareBtn">Compare</button>
+            </div>
+            <div id="comparisonResults" class="comparison-results"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <script src="js/map.js"></script>
-    <script src="js/comparison.js"></script>
-<    script src="js/news.js"></script>
-    <!-- <script src="countries.geojson"></script> -->
+    <script src="map.js"></script>
+    <script src="comparison.js"></script>
+    <script src="news.js"></script>
 </body>
 </html>
