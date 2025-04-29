@@ -253,9 +253,17 @@ function initMapApp() {
   const enterMapBtn = document.getElementById("enterMapBtn")
   if (enterMapBtn) {
     enterMapBtn.addEventListener("click", () => {
+      console.log("Enter Map button clicked")
       const homepage = document.getElementById("homepage")
-      homepage.style.display = "none"
-      map.invalidateSize()
+      if (homepage) {
+        homepage.style.display = "none"
+        console.log("Homepage hidden")
+      }
+      // Force map to recalculate its size after homepage is hidden
+      setTimeout(() => {
+        map.invalidateSize()
+        console.log("Map size recalculated after entering")
+      }, 200)
     })
   }
 
@@ -291,21 +299,6 @@ function initMapApp() {
     map.invalidateSize()
     console.log("Map size recalculated")
   }, 500)
-
-  // Make sure the map is visible when the Enter Map button is clicked
-  const enterMapBtn2 = document.getElementById("enterMapBtn")
-  if (enterMapBtn2) {
-    enterMapBtn2.addEventListener("click", () => {
-      const homepage = document.getElementById("homepage")
-      if (homepage) {
-        homepage.style.display = "none"
-      }
-      setTimeout(() => {
-        map.invalidateSize()
-        console.log("Map size recalculated after entering")
-      }, 100)
-    })
-  }
 }
 
 // Initialize the map when the DOM is fully loaded
