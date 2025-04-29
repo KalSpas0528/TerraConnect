@@ -1,4 +1,8 @@
-document.addEventListener("DOMContentLoaded", () => {
+// === comparison.js - Handles country comparison functionality ===
+
+document.addEventListener("DOMContentLoaded", initComparisonFeature)
+
+function initComparisonFeature() {
   const comparisonModal = document.getElementById("comparisonModal")
   const closeComparisonModal = document.getElementById("closeComparisonModal")
   const compareBtn = document.getElementById("compareBtn")
@@ -57,6 +61,11 @@ document.addEventListener("DOMContentLoaded", () => {
       })
     } catch (error) {
       console.error("Error fetching country list:", error)
+      comparisonResults.innerHTML = `
+                <div class="comparison-error">
+                    <p>Error loading country list. Please try again later.</p>
+                </div>
+            `
     }
   }
 
@@ -85,34 +94,59 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Show a loading message while fetching details
-    comparisonResults.innerHTML = "<p>Loading comparison...</p>"
+    comparisonResults.innerHTML = `
+            <div class="loading-comparison">
+                <div class="spinner" style="width: 30px; height: 30px; border-width: 3px;"></div>
+                <p>Loading comparison...</p>
+            </div>
+        `
 
     const [details1, details2] = await Promise.all([fetchCountryDetails(country1), fetchCountryDetails(country2)])
 
     if (!details1 || !details2) {
-      comparisonResults.innerHTML = "<p>Error fetching country details. Please try again later.</p>"
+      comparisonResults.innerHTML = `
+                <div class="comparison-error">
+                    <p>Error fetching country details. Please try again later.</p>
+                </div>
+            `
       return
     }
 
     // Build HTML for side-by-side display of country details
     const resultHTML = `
-      <div class="comparison-column">
-        <h3>${details1.name.common}</h3>
-        <p><strong>Population:</strong> ${details1.population.toLocaleString()}</p>
-        <p><strong>Area:</strong> ${details1.area.toLocaleString()} km²</p>
-        <p><strong>Region:</strong> ${details1.region}</p>
-        <p><strong>Capital:</strong> ${details1.capital ? details1.capital.join(", ") : "N/A"}</p>
-        <p><strong>Languages:</strong> ${details1.languages ? Object.values(details1.languages).join(", ") : "N/A"}</p>
-      </div>
-      <div class="comparison-column">
-        <h3>${details2.name.common}</h3>
-        <p><strong>Population:</strong> ${details2.population.toLocaleString()}</p>
-        <p><strong>Area:</strong> ${details2.area.toLocaleString()} km²</p>
-        <p><strong>Region:</strong> ${details2.region}</p>
-        <p><strong>Capital:</strong> ${details2.capital ? details2.capital.join(", ") : "N/A"}</p>
-        <p><strong>Languages:</strong> ${details2.languages ? Object.values(details2.languages).join(", ") : "N/A"}</p>
-      </div>
-    `
+            <div class="comparison-column">
+                <h3>${details1.name.common}</h3>
+                <img src="${details1.flags.png}" alt="${details1.name.common} flag" class="comparison-flag">
+                <p><strong>Population:</strong> ${details1.population.toLocaleString()}</p>
+                <p><strong>Area:</strong> ${details1.area.toLocaleString()} km²</p>
+                <p><strong>Region:</strong> ${details1.region}</p>
+                <p><strong>Capital:</strong> ${details1.capital ? details1.capital.join(", ") : "N/A"}</p>
+                <p><strong>Languages:</strong> ${details1.languages ? Object.values(details1.languages).join(", ") : "N/A"}</p>
+                <p><strong>Currencies:</strong> ${
+                  details1.currencies
+                    ? Object.values(details1.currencies)
+                        .map((c) => `${c.name} (${c.symbol})`)
+                        .join(", ")
+                    : "N/A"
+                }</p>
+            </div>
+            <div class="comparison-column">
+                <h3>${details2.name.common}</h3>
+                <img src="${details2.flags.png}" alt="${details2.name.common} flag" class="comparison-flag">
+                <p><strong>Population:</strong> ${details2.population.toLocaleString()}</p>
+                <p><strong>Area:</strong> ${details2.area.toLocaleString()} km²</p>
+                <p><strong>Region:</strong> ${details2.region}</p>
+                <p><strong>Capital:</strong> ${details2.capital ? details2.capital.join(", ") : "N/A"}</p>
+                <p><strong>Languages:</strong> ${details2.languages ? Object.values(details2.languages).join(", ") : "N/A"}</p>
+                <p><strong>Currencies:</strong> ${
+                  details2.currencies
+                    ? Object.values(details2.currencies)
+                        .map((c) => `${c.name} (${c.symbol})`)
+                        .join(", ")
+                    : "N/A"
+                }</p>
+            </div>
+        `
     comparisonResults.innerHTML = resultHTML
   }
 
@@ -124,4 +158,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Call this function to populate the dropdowns when the page loads
   populateComparisonDropdowns()
-})
+}
