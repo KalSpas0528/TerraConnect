@@ -1,167 +1,161 @@
-// === news.js - Handles news fetching and display ===
+// === comparison.js - Handles country comparison functionality ===
 
-document.addEventListener("DOMContentLoaded", initNewsFeature)
+document.addEventListener("DOMContentLoaded", initComparisonFeature)
 
-function initNewsFeature() {
-  // Using Gnews API with your API key
-  const GNEWS_API_KEY = "f722aee7a01c3aadf85deec3f2069229"
-  const newsContent = document.getElementById("newsContent")
-  const newsToggle = document.getElementById("newsToggle")
-  const newsSection = document.querySelector(".news-section")
+function initComparisonFeature() {
+  const comparisonModal = document.getElementById("comparisonModal")
+  const closeComparisonModal = document.getElementById("closeComparisonModal")
+  const compareBtn = document.getElementById("compareBtn")
+  const country1Select = document.getElementById("country1")
+  const country2Select = document.getElementById("country2")
+  const comparisonResults = document.getElementById("comparisonResults")
+  const compareCountriesBtn = document.getElementById("compareCountriesBtn")
 
-  if (!newsContent) {
-    console.error("#newsContent element not found.")
+  if (!comparisonModal) {
+    console.error("Comparison modal not found.")
+    return
+  }
+  if (!compareCountriesBtn) {
+    console.error("Compare Countries button not found.")
     return
   }
 
-  // Toggle news panel
-  if (newsToggle) {
-    newsToggle.addEventListener("click", () => {
-      newsSection.classList.toggle("expanded")
-      newsToggle.innerHTML = newsSection.classList.contains("expanded")
-        ? '<i class="fas fa-chevron-right"></i>'
-        : '<i class="fas fa-chevron-left"></i>'
+  // Open the comparison modal when the button is clicked
+  function openComparisonModal() {
+    comparisonModal.style.display = "block"
+  }
+
+  compareCountriesBtn.addEventListener("click", openComparisonModal)
+
+  // Close the modal when the close button is clicked
+  if (closeComparisonModal) {
+    closeComparisonModal.addEventListener("click", () => {
+      comparisonModal.style.display = "none"
     })
   }
 
-  async function fetchCountryNews(country) {
+  // Close the modal when clicking outside of it
+  window.addEventListener("click", (e) => {
+    if (e.target === comparisonModal) {
+      comparisonModal.style.display = "none"
+    }
+  })
+
+  // Populate dropdowns with country names from the Rest Countries API
+  async function populateComparisonDropdowns() {
     try {
-      console.log(`Fetching news for ${country}`)
-
-      // First, get the country code using the REST Countries API
-      const countryResponse = await fetch(
-        `https://restcountries.com/v3.1/name/${encodeURIComponent(country)}?fullText=true`,
-      )
-      if (!countryResponse.ok) {
-        throw new Error(`Country API error: ${countryResponse.status}`)
-      }
-
-      const countryData = await countryResponse.json()
-      const countryCode = countryData[0]?.cca2?.toLowerCase()
-
-      // If we have a country code, use it to get news FROM that country
-      let apiUrl
-      if (countryCode) {
-        apiUrl = `https://gnews.io/api/v4/top-headlines?country=${countryCode}&lang=en&max=5&apikey=${GNEWS_API_KEY}`
-      } else {
-        // Fallback to searching for news ABOUT the country
-        apiUrl = `https://gnews.io/api/v4/search?q=${encodeURIComponent(country)}&lang=en&max=5&apikey=${GNEWS_API_KEY}`
-      }
-
-      const response = await fetch(apiUrl)
-      if (!response.ok) {
-        throw new Error(`News API error: ${response.status}`)
-      }
-
+      const response = await fetch("https://restcountries.com/v3.1/all")
       const data = await response.json()
-      console.log("News data received:", data)
-      return {
-        articles: data.articles || [],
-        fromCountry: !!countryCode,
-      }
+      const countryNames = data.map((country) => country.name.common).sort()
+
+      countryNames.forEach((country) => {
+        const option1 = document.createElement("option")
+        option1.value = country
+        option1.textContent = country
+        country1Select.appendChild(option1)
+
+        const option2 = document.createElement("option")
+        option2.value = country
+        option2.textContent = country
+        country2Select.appendChild(option2)
+      })
     } catch (error) {
-      console.error("News fetch failed:", error)
-
-      // Try alternative approach - search for news about the country
-      try {
-        console.log("Trying alternative news approach...")
-        const apiUrl = `https://gnews.io/api/v4/search?q=${encodeURIComponent(country)}&lang=en&max=5&apikey=${GNEWS_API_KEY}`
-        const response = await fetch(apiUrl)
-
-        if (!response.ok) throw new Error("Alternative approach failed")
-
-        const data = await response.json()
-        return {
-          articles: data.articles || [],
-          fromCountry: false,
-        }
-      } catch (altError) {
-        console.error("Alternative news approach failed:", altError)
-
-        // Return mock data as a last resort
-        return {
-          articles: [
-            {
-              title: `News about ${country}`,
-              description: `We couldn't fetch real news for ${country} at the moment. This is a placeholder article.`,
-              url: "#",
-              image: `https://via.placeholder.com/300x200?text=${encodeURIComponent(country)}`,
-              publishedAt: new Date().toISOString(),
-              source: { name: "TerraConnect" },
-            },
-            {
-              title: `${country} information`,
-              description: `Learn more about ${country} by clicking the Details button in the country popup.`,
-              url: "#",
-              publishedAt: new Date().toISOString(),
-              source: { name: "TerraConnect" },
-            },
-          ],
-          fromCountry: false,
-          isMock: true,
-        }
-      }
+      console.error("Error fetching country list:", error)
+      comparisonResults.innerHTML = `
+                <div class="comparison-error">
+                    <p>Error loading country list. Please try again later.</p>
+                </div>
+            `
     }
   }
 
-  document.addEventListener("countrySelected", async (e) => {
-    const countryName = e.detail.country
-    if (!countryName) return
+  // Fetch details for a given country using the Rest Countries API
+  async function fetchCountryDetails(countryName) {
+    try {
+      const response = await fetch(
+        `https://restcountries.com/v3.1/name/${encodeURIComponent(countryName)}?fullText=true`,
+      )
+      const data = await response.json()
+      return data[0]
+    } catch (error) {
+      console.error(`Error fetching details for ${countryName}:`, error)
+      return null
+    }
+  }
 
-    // Expand the news panel
-    newsSection.classList.add("expanded")
-    newsToggle.innerHTML = '<i class="fas fa-chevron-right"></i>'
+  // Compare the two selected countries and display the results
+  async function compareCountries() {
+    const country1 = country1Select.value
+    const country2 = country2Select.value
 
-    // Show loading state
-    newsContent.innerHTML = `
-            <div class="loading-news">
+    if (!country1 || !country2) {
+      alert("Please select both countries.")
+      return
+    }
+
+    // Show a loading message while fetching details
+    comparisonResults.innerHTML = `
+            <div class="loading-comparison">
                 <div class="spinner" style="width: 30px; height: 30px; border-width: 3px;"></div>
-                <p>Loading news for ${countryName}...</p>
+                <p>Loading comparison...</p>
             </div>
         `
 
-    const result = await fetchCountryNews(countryName)
+    const [details1, details2] = await Promise.all([fetchCountryDetails(country1), fetchCountryDetails(country2)])
 
-    if (!result) {
-      newsContent.innerHTML = `
-                <div class="news-error">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <p>Error loading news. Please try again later.</p>
+    if (!details1 || !details2) {
+      comparisonResults.innerHTML = `
+                <div class="comparison-error">
+                    <p>Error fetching country details. Please try again later.</p>
                 </div>
             `
-    } else if (result.articles.length === 0) {
-      newsContent.innerHTML = `
-                <div class="news-error">
-                    <i class="fas fa-info-circle"></i>
-                    <p>No recent news found for <strong>${countryName}</strong>.</p>
-                </div>
-            `
-    } else {
-      const newsHTML = result.articles
-        .map(
-          (article) => `
-                    <div class="news-article">
-                        ${article.image ? `<img src="${article.image}" alt="${article.title}" class="news-image">` : ""}
-                        <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
-                        <p>${article.description ? article.description : "No description available."}</p>
-                        <div class="meta">
-                            <span>${article.source?.name || "Unknown"}</span>
-                            <span>${new Date(article.publishedAt).toLocaleDateString()}</span>
-                        </div>
-                    </div>
-                `,
-        )
-        .join("")
-
-      const headerText = result.isMock
-        ? `Information about ${countryName}`
-        : `${result.fromCountry ? "Latest News from" : "News about"} ${countryName}`
-
-      newsContent.innerHTML = `
-                <h2>${headerText}</h2>
-                ${result.isMock ? '<p class="mock-notice">Real news data is currently unavailable.</p>' : ""}
-                ${newsHTML}
-            `
+      return
     }
-  })
+
+    // Build HTML for side-by-side display of country details
+    const resultHTML = `
+            <div class="comparison-column">
+                <h3>${details1.name.common}</h3>
+                <img src="${details1.flags.png}" alt="${details1.name.common} flag" class="comparison-flag">
+                <p><strong>Population:</strong> ${details1.population.toLocaleString()}</p>
+                <p><strong>Area:</strong> ${details1.area.toLocaleString()} km²</p>
+                <p><strong>Region:</strong> ${details1.region}</p>
+                <p><strong>Capital:</strong> ${details1.capital ? details1.capital.join(", ") : "N/A"}</p>
+                <p><strong>Languages:</strong> ${details1.languages ? Object.values(details1.languages).join(", ") : "N/A"}</p>
+                <p><strong>Currencies:</strong> ${
+                  details1.currencies
+                    ? Object.values(details1.currencies)
+                        .map((c) => `${c.name} (${c.symbol})`)
+                        .join(", ")
+                    : "N/A"
+                }</p>
+            </div>
+            <div class="comparison-column">
+                <h3>${details2.name.common}</h3>
+                <img src="${details2.flags.png}" alt="${details2.name.common} flag" class="comparison-flag">
+                <p><strong>Population:</strong> ${details2.population.toLocaleString()}</p>
+                <p><strong>Area:</strong> ${details2.area.toLocaleString()} km²</p>
+                <p><strong>Region:</strong> ${details2.region}</p>
+                <p><strong>Capital:</strong> ${details2.capital ? details2.capital.join(", ") : "N/A"}</p>
+                <p><strong>Languages:</strong> ${details2.languages ? Object.values(details2.languages).join(", ") : "N/A"}</p>
+                <p><strong>Currencies:</strong> ${
+                  details2.currencies
+                    ? Object.values(details2.currencies)
+                        .map((c) => `${c.name} (${c.symbol})`)
+                        .join(", ")
+                    : "N/A"
+                }</p>
+            </div>
+        `
+    comparisonResults.innerHTML = resultHTML
+  }
+
+  if (compareBtn) {
+    compareBtn.addEventListener("click", compareCountries)
+  } else {
+    console.error("Compare button not found in the modal.")
+  }
+
+  // Call this function to populate the dropdowns when the page loads
+  populateComparisonDropdowns()
 }
