@@ -78,5 +78,23 @@
     <script src="map.js"></script>
     <script src="comparison.js"></script>
     <script src="news.js"></script>
+    <script>
+        // Ensure the Enter Map button works
+        document.addEventListener("DOMContentLoaded", function() {
+            const enterMapBtn = document.getElementById("enterMapBtn");
+            if (enterMapBtn) {
+                enterMapBtn.addEventListener("click", function() {
+                    console.log("Enter Map button clicked (from inline script)");
+                    const homepage = document.getElementById("homepage");
+                    if (homepage) {
+                        homepage.style.display = "none";
+                        console.log("Homepage hidden (from inline script)");
+                    }
+                });
+            } else {
+                console.error("Enter Map button not found");
+            }
+        });
+    </script>
 </body>
 </html>
