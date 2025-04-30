@@ -1,5 +1,8 @@
 // === map.js - Handles map initialization and interactions ===
 
+// Declare L as a global variable, assuming Leaflet is included via a script tag
+var L = L || {}
+
 let map
 let geojsonLayer
 const allCountries = []
@@ -32,16 +35,20 @@ function initMapApp() {
     })
     .addTo(map)
 
-  // Use OpenStreetMap tiles instead of CartoDB (which was giving 400 errors)
-  const baseLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  // Use CartoDB Voyager map with English labels
+  const baseLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: "abcd",
     maxZoom: 19,
     minZoom: 2,
   }).addTo(map)
 
   // Add a separate layer for labels that we can toggle
-  labelLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  labelLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png", {
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: "abcd",
     maxZoom: 19,
     minZoom: 2,
   })
@@ -271,6 +278,7 @@ function initMapApp() {
     document.body.classList.add("game-active")
 
     // Remove the labels layer to hide country names
+    map.removeLayer(baseLayer)
     if (labelLayer) {
       map.removeLayer(labelLayer)
     }
@@ -308,10 +316,8 @@ function initMapApp() {
       map.removeLayer(window.noLabelsLayer)
     }
 
-    // Add back the labels layer if it was active
-    if (labelLayer) {
-      labelLayer.addTo(map)
-    }
+    // Add back the base layer
+    baseLayer.addTo(map)
 
     if (currentGameCountry && countryLayers[currentGameCountry]) {
       geojsonLayer.resetStyle(countryLayers[currentGameCountry])
@@ -334,7 +340,8 @@ function initMapApp() {
     const targetLayer = countryLayers[currentGameCountry]
     if (targetLayer) {
       geojsonLayer.resetStyle()
-      targetLayer.setStyle({ color: "#2ecc71", weight: 4, fillOpacity: 0.3 })
+      // Change the border color to bright yellow with thicker border for better visibility
+      targetLayer.setStyle({ color: "#f1c40f", weight: 6, fillOpacity: 0.2 })
       targetLayer.bringToFront()
 
       // Center map on the country with limited zoom
