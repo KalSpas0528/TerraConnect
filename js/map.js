@@ -1,5 +1,6 @@
 // === map.js - Handles map initialization and interactions ===
 
+
 let map
 let geojsonLayer
 const allCountries = []
@@ -8,14 +9,18 @@ let gameActive = false
 let currentGameCountry = null
 const countryLayers = {}
 
+
 // Initialize the map when the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", initMapApp)
+
 
 function initMapApp() {
   console.log("Initializing map application")
 
+
   // Show loading overlay
   document.getElementById("loadingOverlay").style.display = "flex"
+
 
   // Initialize the map with proper settings
   map = L.map("map", {
@@ -24,12 +29,14 @@ function initMapApp() {
     zoomControl: false,
   }).setView([20, 0], 2)
 
+
   // Add zoom control to top-right
   L.control
     .zoom({
       position: "topright",
     })
     .addTo(map)
+
 
   // Use OpenStreetMap tiles instead of CartoDB (which was giving 400 errors)
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -38,39 +45,14 @@ function initMapApp() {
     minZoom: 2,
   }).addTo(map)
 
+
   const bounds = L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180))
   map.setMaxBounds(bounds)
 
-  // === Marker Toggle Control ===
-  let markersEnabled = false
-  let previousMarkersEnabled = false
-  const markerToggleControl = L.control({ position: "topright" })
-  markerToggleControl.onAdd = () => {
-    const div = L.DomUtil.create("div", "leaflet-bar custom-map-control")
-    const button = L.DomUtil.create("a", "", div)
-    button.innerHTML = '<i class="fas fa-map-marker-alt"></i>'
-    button.title = "Toggle Markers"
-    button.href = "#"
-    button.style.fontSize = "16px"
-    button.onclick = (e) => {
-      e.preventDefault()
-      if (gameActive) return
-      markersEnabled = !markersEnabled
-      button.innerHTML = markersEnabled ? '<i class="fas fa-map-marker-alt"></i>' : '<i class="fas fa-ban"></i>'
-      button.title = markersEnabled ? "Disable Markers" : "Enable Markers"
-    }
-    return div
-  }
-  markerToggleControl.addTo(map)
 
-  map.on("click", (e) => {
-    if (!markersEnabled || gameActive) return
-    const { lat, lng } = e.latlng
-    L.marker([lat, lng])
-      .addTo(map)
-      .bindPopup(`<b>Clicked location:</b><br>Latitude: ${lat.toFixed(4)}<br>Longitude: ${lng.toFixed(4)}`)
-      .openPopup()
-  })
+  // === Marker Toggle Control ===
+  // Removed from here - now added to the header
+
 
   function updateVisitedList() {
     const visitedListElem = document.getElementById("visited-list")
@@ -82,6 +64,7 @@ function initMapApp() {
     }
     localStorage.setItem("visitedCountries", JSON.stringify(visitedCountries))
   }
+
 
   function standardizeCountryName(country) {
     const countryMap = {
@@ -95,6 +78,7 @@ function initMapApp() {
     }
     return countryMap[country] || country
   }
+
 
   // Load GeoJSON data from the file
   fetch("https://raw.githubusercontent.com/kalspas0528/TerraConnect/main/countries.geojson")
@@ -111,6 +95,7 @@ function initMapApp() {
         }
       })
 
+
       geojsonLayer = L.geoJSON(data, {
         style: { color: "#3498db", weight: 1, fillOpacity: 0.1 },
         onEachFeature: (feature, layer) => {
@@ -125,6 +110,7 @@ function initMapApp() {
               updateVisitedList()
             }
 
+
             // Dispatch the country selection event
             document.dispatchEvent(
               new CustomEvent("countrySelected", {
@@ -132,14 +118,17 @@ function initMapApp() {
               }),
             )
 
+
             // Show country info in popup
             showCountryPopup(countryName, layer)
           })
         },
       }).addTo(map)
 
+
       // Hide loading overlay once map is ready
       document.getElementById("loadingOverlay").style.display = "none"
+
 
       // Update the visited countries list
       updateVisitedList()
@@ -149,6 +138,7 @@ function initMapApp() {
       document.getElementById("loadingOverlay").style.display = "none"
       alert("Failed to load map data. Please refresh the page.")
     })
+
 
   function showCountryPopup(countryName, layer) {
     const popupContent = `
@@ -168,6 +158,7 @@ function initMapApp() {
     layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup()
   }
 
+
   // Make these functions available globally
   window.showCountryInfo = async (countryName) => {
     const countryInfoModal = document.getElementById("countryInfoModal")
@@ -176,10 +167,12 @@ function initMapApp() {
     const countryDetails = document.getElementById("countryDetails")
     const countryWiki = document.getElementById("countryWiki")
 
+
     countryInfoTitle.textContent = countryName
     countryDetails.innerHTML = "<p>Loading country details...</p>"
     countryWiki.innerHTML = "Loading Wikipedia summary..."
     countryInfoModal.style.display = "block"
+
 
     try {
       // Fetch country details from REST Countries API
@@ -189,9 +182,11 @@ function initMapApp() {
       const data = await response.json()
       const country = data[0]
 
+
       // Set flag
       countryFlag.src = country.flags.png
       countryFlag.alt = `Flag of ${countryName}`
+
 
       // Set country details
       const population = country.population.toLocaleString()
@@ -206,6 +201,7 @@ function initMapApp() {
             .join(", ")
         : "N/A"
 
+
       countryDetails.innerHTML = `
         <p><strong>Capital:</strong> ${capital}</p>
         <p><strong>Population:</strong> ${population}</p>
@@ -214,6 +210,7 @@ function initMapApp() {
         <p><strong>Languages:</strong> ${languages}</p>
         <p><strong>Currencies:</strong> ${currencies}</p>
       `
+
 
       // Fetch Wikipedia summary
       const wikiSummary = await fetchWikipediaSummary(countryName)
@@ -225,6 +222,7 @@ function initMapApp() {
     }
   }
 
+
   window.showCountryNews = (countryName) => {
     // Expand news panel and trigger news fetch
     document.querySelector(".news-section").classList.add("expanded")
@@ -234,6 +232,7 @@ function initMapApp() {
       }),
     )
   }
+
 
   async function fetchWikipediaSummary(country) {
     const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(country)}`
@@ -248,6 +247,7 @@ function initMapApp() {
     }
   }
 
+
   // === Game ===
   const gameModal = document.getElementById("gameModal")
   const closeGameModal = document.getElementById("closeGameModal")
@@ -256,6 +256,12 @@ function initMapApp() {
   const gameFeedback = document.getElementById("game-feedback")
   const gameGuessInput = document.getElementById("game-guess")
   const startGameBtn = document.getElementById("startGameBtn")
+
+
+  // Initialize variables
+  let previousMarkersEnabled = false
+  window.markersEnabled = false
+
 
   if (startGameBtn) {
     startGameBtn.addEventListener("click", () => {
@@ -267,6 +273,7 @@ function initMapApp() {
     })
   }
 
+
   function startGameMode() {
     gameActive = true
     previousMarkersEnabled = markersEnabled
@@ -274,6 +281,7 @@ function initMapApp() {
     gameModal.style.display = "block"
     startNewGame()
   }
+
 
   function endGameMode() {
     gameActive = false
@@ -286,7 +294,12 @@ function initMapApp() {
     gameFeedback.textContent = ""
     gameFeedback.className = "feedback"
     gameGuessInput.value = ""
+
+
+    // Reset the map view to global view
+    map.setView([20, 0], 2)
   }
+
 
   function startNewGame() {
     if (currentGameCountry && countryLayers[currentGameCountry]) {
@@ -300,23 +313,49 @@ function initMapApp() {
       targetLayer.setStyle({ color: "#2ecc71", weight: 4, fillOpacity: 0.3 })
       targetLayer.bringToFront()
 
-      // Center map on the country
-      map.fitBounds(targetLayer.getBounds(), { padding: [50, 50] })
+
+      // Center map on the country with limited zoom
+      const bounds = targetLayer.getBounds()
+
+
+      // Calculate appropriate zoom level based on country size
+      const countryArea = bounds.getSouthWest().distanceTo(bounds.getNorthEast())
+      let zoomLevel = 4 // Default zoom level
+
+
+      if (countryArea > 5000000) {
+        // Very large country
+        zoomLevel = 3
+      } else if (countryArea < 500000) {
+        // Small country
+        zoomLevel = 5
+      }
+
+
+      // Get the center of the country
+      const center = bounds.getCenter()
+
+
+      // Set view with controlled zoom level
+      map.setView(center, zoomLevel)
     }
     gameFeedback.textContent = ""
     gameFeedback.className = "feedback"
     gameGuessInput.value = ""
   }
 
+
   if (closeGameModal) {
     closeGameModal.addEventListener("click", endGameMode)
   }
+
 
   window.addEventListener("click", (e) => {
     if (e.target === gameModal) {
       endGameMode()
     }
   })
+
 
   if (submitGuessBtn) {
     submitGuessBtn.addEventListener("click", () => {
@@ -335,9 +374,11 @@ function initMapApp() {
     })
   }
 
+
   if (newGameBtn) {
     newGameBtn.addEventListener("click", startNewGame)
   }
+
 
   const clearVisitedBtn = document.getElementById("clearVisitedBtn")
   if (clearVisitedBtn) {
@@ -350,6 +391,7 @@ function initMapApp() {
     })
   }
 
+
   const enterMapBtn = document.getElementById("enterMapBtn")
   if (enterMapBtn) {
     enterMapBtn.addEventListener("click", () => {
@@ -361,15 +403,19 @@ function initMapApp() {
       }
       // Force map to recalculate its size after homepage is hidden
       setTimeout(() => {
-        map.invalidateSize()
-        console.log("Map size recalculated after entering")
+        if (map && typeof map.invalidateSize === "function") {
+          map.invalidateSize()
+          console.log("Map size recalculated after entering")
+        }
       }, 200)
     })
   }
 
+
   // === Search ===
   const searchInput = document.getElementById("searchInput")
   const searchBtn = document.getElementById("searchBtn")
+
 
   if (searchBtn && searchInput) {
     searchBtn.addEventListener("click", () => {
@@ -387,6 +433,7 @@ function initMapApp() {
       }
     })
 
+
     searchInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         searchBtn.click()
@@ -394,11 +441,66 @@ function initMapApp() {
     })
   }
 
+
   // Force map to recalculate its size after it's visible
   setTimeout(() => {
-    map.invalidateSize()
-    console.log("Map size recalculated")
+    if (map && typeof map.invalidateSize === "function") {
+      map.invalidateSize()
+      console.log("Map size recalculated")
+    }
   }, 500)
+
+
+  // Make markersEnabled available globally
+  window.markersEnabled = false
 }
+
+
+// Add marker toggle functionality to the header
+document.addEventListener("DOMContentLoaded", () => {
+  const headerActions = document.querySelector(".header-actions")
+  if (headerActions) {
+    const markerToggleBtn = document.createElement("button")
+    markerToggleBtn.id = "markerToggleBtn"
+    markerToggleBtn.className = "action-button"
+    markerToggleBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i> Markers'
+
+
+    headerActions.appendChild(markerToggleBtn)
+
+
+    markerToggleBtn.addEventListener("click", function () {
+      window.markersEnabled = !window.markersEnabled
+      this.classList.toggle("active")
+
+
+      if (window.markersEnabled) {
+        this.innerHTML = '<i class="fas fa-map-marker-alt"></i> Markers On'
+        this.style.backgroundColor = "#3498db"
+        this.style.color = "white"
+      } else {
+        this.innerHTML = '<i class="fas fa-map-marker-alt"></i> Markers'
+        this.style.backgroundColor = ""
+        this.style.color = ""
+      }
+    })
+  }
+
+
+  // Add click handler to map for markers
+  if (window.map) {
+    window.map.on("click", (e) => {
+      if (!window.markersEnabled || window.gameActive) return
+      const { lat, lng } = e.latlng
+      L.marker([lat, lng])
+        .addTo(window.map)
+        .bindPopup(`<b>Clicked location:</b><br>Latitude: ${lat.toFixed(4)}<br>Longitude: ${lng.toFixed(4)}`)
+        .openPopup()
+    })
+  }
+})
+
+
+
 
 

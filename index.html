@@ -21,8 +21,10 @@
         </div>
     </div>
 
+
     <!-- Map Container -->
     <div id="map"></div>
+
 
     <!-- Header with Search Bar -->
     <header class="app-header">
@@ -40,8 +42,10 @@
             <button id="startGameBtn" class="action-button">
                 <i class="fas fa-gamepad"></i> Game
             </button>
+            <!-- Marker toggle button will be added here via JavaScript -->
         </div>
     </header>
+
 
     <!-- Visited Countries Sidebar -->
     <div class="sidebar">
@@ -59,6 +63,7 @@
         </div>
     </div>
 
+
     <!-- News Section -->
     <div class="news-section">
         <div class="news-header">
@@ -74,6 +79,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- Game Modal -->
     <div id="gameModal" class="modal">
@@ -95,6 +101,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- Country Comparison Modal -->
     <div id="comparisonModal" class="modal">
@@ -124,6 +131,7 @@
         </div>
     </div>
 
+
     <!-- Country Info Modal -->
     <div id="countryInfoModal" class="modal">
         <div class="modal-content country-info-modal-content">
@@ -134,7 +142,7 @@
             <div class="modal-body">
                 <div class="country-info-container">
                     <div class="country-flag-container">
-                        <img id="countryFlag" src="https://via.placeholder.com/200x120" alt="Country flag">
+                        <img id="countryFlag" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Country flag">
                     </div>
                     <div class="country-details" id="countryDetails">
                         <!-- Country details will be inserted here -->
@@ -150,11 +158,13 @@
         </div>
     </div>
 
+
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="spinner"></div>
         <p>Loading...</p>
     </div>
+
 
     <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -164,3 +174,7 @@
     <script src="js/ui.js"></script>
 </body>
 </html>
+
+
+
+

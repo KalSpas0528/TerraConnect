@@ -1,8 +1,6 @@
 // === news.js - Handles news fetching and display ===
 
-
 document.addEventListener("DOMContentLoaded", initNewsFeature)
-
 
 function initNewsFeature() {
   // Using Gnews API with your API key
@@ -11,16 +9,13 @@ function initNewsFeature() {
   const newsToggle = document.getElementById("newsToggle")
   const newsSection = document.querySelector(".news-section")
 
-
   // Country-specific news database for fallback
   const countryNewsDatabase = {}
-
 
   if (!newsContent) {
     console.error("#newsContent element not found.")
     return
   }
-
 
   // Toggle news panel
   if (newsToggle) {
@@ -32,14 +27,12 @@ function initNewsFeature() {
     })
   }
 
-
   // Initialize the country news database with some predefined news
   async function initCountryNewsDatabase() {
     try {
       // Fetch all countries to build our database
       const response = await fetch("https://restcountries.com/v3.1/all")
       const countries = await response.json()
-
 
       // Create mock news for each country
       countries.forEach((country) => {
@@ -49,7 +42,6 @@ function initNewsFeature() {
         const region = country.region
         const subregion = country.subregion || region
         const flag = country.flags.png
-
 
         // Generate 5 mock news articles specific to this country
         countryNewsDatabase[countryName] = {
@@ -99,58 +91,46 @@ function initNewsFeature() {
         }
       })
 
-
       console.log("Country news database initialized with mock data")
     } catch (error) {
       console.error("Error initializing country news database:", error)
     }
   }
 
-
   // Initialize the database when the page loads
   initCountryNewsDatabase()
-
 
   async function fetchCountryNews(country) {
     try {
       console.log(`Fetching news for ${country}`)
-
 
       // First, get the country code using the REST Countries API
       const countryResponse = await fetch(
         `https://restcountries.com/v3.1/name/${encodeURIComponent(country)}?fullText=true`,
       )
 
-
       if (!countryResponse.ok) {
         throw new Error(`Country API error: ${countryResponse.status}`)
       }
-
 
       const countryData = await countryResponse.json()
       const countryCode = countryData[0]?.cca2?.toLowerCase()
       const countryFlag = countryData[0]?.flags?.png
 
-
       // Try to get country-specific news using the country name in the query
       const apiUrl = `https://gnews.io/api/v4/search?q=${encodeURIComponent(country)}&lang=en&max=10&apikey=${GNEWS_API_KEY}`
 
-
       const response = await fetch(apiUrl)
-
 
       if (!response.ok) {
         throw new Error(`News API error: ${response.status}`)
       }
 
-
       const data = await response.json()
       console.log("News data received:", data)
 
-
       // Filter articles to ensure they're actually about this country
       let filteredArticles = data.articles || []
-
 
       // If we have articles, try to filter them to be more country-specific
       if (filteredArticles.length > 0) {
@@ -160,13 +140,11 @@ function initNewsFeature() {
             article.title.includes(country) || (article.description && article.description.includes(country)),
         )
 
-
         // If we have country-specific articles, use those, otherwise use all articles
         if (countrySpecificArticles.length >= 3) {
           filteredArticles = countrySpecificArticles
         }
       }
-
 
       return {
         articles: filteredArticles,
@@ -176,19 +154,15 @@ function initNewsFeature() {
     } catch (error) {
       console.error("News fetch failed:", error)
 
-
       // Try alternative approach - search for news about the country
       try {
         console.log("Trying alternative news approach...")
         const apiUrl = `https://gnews.io/api/v4/search?q=${encodeURIComponent(country)}&lang=en&max=5&apikey=${GNEWS_API_KEY}`
         const response = await fetch(apiUrl)
 
-
         if (!response.ok) throw new Error("Alternative approach failed")
 
-
         const data = await response.json()
-
 
         // Get country flag
         const countryResponse = await fetch(
@@ -197,7 +171,6 @@ function initNewsFeature() {
         const countryData = await countryResponse.json()
         const countryFlag = countryData[0]?.flags?.png
 
-
         return {
           articles: data.articles || [],
           fromCountry: false,
@@ -205,7 +178,6 @@ function initNewsFeature() {
         }
       } catch (altError) {
         console.error("Alternative news approach failed:", altError)
-
 
         // Use our pre-generated country-specific news database as fallback
         if (countryNewsDatabase[country]) {
@@ -218,10 +190,8 @@ function initNewsFeature() {
           }
         }
 
-
         // If all else fails, generate some mock data on the fly
         console.log("Generating mock news for", country)
-
 
         // Try to get country flag
         let countryFlag = null
@@ -234,7 +204,6 @@ function initNewsFeature() {
         } catch (e) {
           console.error("Could not fetch country flag:", e)
         }
-
 
         return {
           articles: [
@@ -271,16 +240,13 @@ function initNewsFeature() {
     }
   }
 
-
   document.addEventListener("countrySelected", async (e) => {
     const countryName = e.detail.country
     if (!countryName) return
 
-
     // Expand the news panel
     newsSection.classList.add("expanded")
     newsToggle.innerHTML = '<i class="fas fa-chevron-right"></i>'
-
 
     // Show loading state
     newsContent.innerHTML = `
@@ -290,9 +256,7 @@ function initNewsFeature() {
       </div>
     `
 
-
     const result = await fetchCountryNews(countryName)
-
 
     if (!result) {
       newsContent.innerHTML = `
@@ -325,23 +289,28 @@ function initNewsFeature() {
         )
         .join("")
 
-
       const headerText = result.isMock
         ? `Information about ${countryName}`
         : `${result.fromCountry ? "Latest News from" : "News about"} ${countryName}`
-
 
       newsContent.innerHTML = `
         <div class="country-news-header">
           ${result.flag ? `<img src="${result.flag}" alt="${countryName} flag">` : ""}
           <h2>${headerText}</h2>
+          <button id="closeNewsBtn" class="close-news-btn" title="Close News">
+            <i class="fas fa-times"></i>
+          </button>
         </div>
         ${result.isMock ? '<p class="mock-notice">Using curated information for this country. Live news may not be available.</p>' : ""}
         ${newsHTML}
       `
+
+      // Add event listener to the close news button
+      document.getElementById("closeNewsBtn").addEventListener("click", () => {
+        newsSection.classList.remove("expanded")
+        newsToggle.innerHTML = '<i class="fas fa-chevron-left"></i>'
+      })
     }
   })
 }
-
-
 
