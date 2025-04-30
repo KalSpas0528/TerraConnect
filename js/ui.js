@@ -1,11 +1,14 @@
- // === ui.js - Handles UI interactions and general app behavior ===
+// === ui.js - Handles UI interactions and general app behavior ===
+
 
 document.addEventListener("DOMContentLoaded", initUI)
+
 
 function initUI() {
   // Initialize sidebar toggle
   const sidebarToggle = document.getElementById("sidebarToggle")
   const sidebar = document.querySelector(".sidebar")
+
 
   if (sidebarToggle && sidebar) {
     sidebarToggle.addEventListener("click", () => {
@@ -15,19 +18,38 @@ function initUI() {
         : '<i class="fas fa-chevron-right"></i>'
     })
 
+
     // Expand sidebar by default
     sidebar.classList.add("expanded")
     sidebarToggle.innerHTML = '<i class="fas fa-chevron-left"></i>'
   }
 
+
+  // Initialize news panel toggle
+  const newsToggle = document.getElementById("newsToggle")
+  const newsSection = document.querySelector(".news-section")
+
+
+  if (newsToggle && newsSection) {
+    newsToggle.addEventListener("click", () => {
+      newsSection.classList.toggle("expanded")
+      newsToggle.innerHTML = newsSection.classList.contains("expanded")
+        ? '<i class="fas fa-chevron-right"></i>'
+        : '<i class="fas fa-chevron-left"></i>'
+    })
+  }
+
+
   // Initialize country info modal close button
   const closeCountryInfoModal = document.getElementById("closeCountryInfoModal")
   const countryInfoModal = document.getElementById("countryInfoModal")
+
 
   if (closeCountryInfoModal && countryInfoModal) {
     closeCountryInfoModal.addEventListener("click", () => {
       countryInfoModal.style.display = "none"
     })
+
 
     window.addEventListener("click", (e) => {
       if (e.target === countryInfoModal) {
@@ -36,9 +58,11 @@ function initUI() {
     })
   }
 
+
   // Handle Enter key in game input
   const gameGuessInput = document.getElementById("game-guess")
   const submitGuessBtn = document.getElementById("submit-guess-btn")
+
 
   if (gameGuessInput && submitGuessBtn) {
     gameGuessInput.addEventListener("keydown", (e) => {
@@ -47,6 +71,7 @@ function initUI() {
       }
     })
   }
+
 
   // Add keyboard shortcuts
   document.addEventListener("keydown", (e) => {
@@ -60,6 +85,7 @@ function initUI() {
       })
     }
 
+
     // S key toggles sidebar
     if (e.key === "s" && e.target.tagName !== "INPUT" && e.target.tagName !== "TEXTAREA") {
       if (sidebar) {
@@ -72,11 +98,9 @@ function initUI() {
       }
     }
 
+
     // N key toggles news panel
     if (e.key === "n" && e.target.tagName !== "INPUT" && e.target.tagName !== "TEXTAREA") {
-      const newsSection = document.querySelector(".news-section")
-      const newsToggle = document.getElementById("newsToggle")
-
       if (newsSection) {
         newsSection.classList.toggle("expanded")
         if (newsToggle) {
@@ -88,13 +112,16 @@ function initUI() {
     }
   })
 
+
   // Handle Enter Map button
   const enterMapBtn = document.getElementById("enterMapBtn")
   const homepage = document.getElementById("homepage")
 
+
   if (enterMapBtn && homepage) {
     enterMapBtn.addEventListener("click", () => {
       homepage.style.display = "none"
+
 
       // Force map to recalculate its size
       if (window.map) {
@@ -105,3 +132,6 @@ function initUI() {
     })
   }
 }
+
+
+

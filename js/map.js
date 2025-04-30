@@ -152,18 +152,18 @@ function initMapApp() {
 
   function showCountryPopup(countryName, layer) {
     const popupContent = `
-            <div class="country-popup">
-                <h3>${countryName}</h3>
-                <div class="country-popup-buttons">
-                    <button onclick="showCountryInfo('${countryName}')">
-                        <i class="fas fa-info-circle"></i> Details
-                    </button>
-                    <button onclick="showCountryNews('${countryName}')">
-                        <i class="fas fa-newspaper"></i> News
-                    </button>
-                </div>
-            </div>
-        `
+      <div class="country-popup">
+        <h3>${countryName}</h3>
+        <div class="country-popup-buttons">
+          <button onclick="showCountryInfo('${countryName}')">
+            <i class="fas fa-info-circle"></i> Details
+          </button>
+          <button onclick="showCountryNews('${countryName}')">
+            <i class="fas fa-newspaper"></i> News
+          </button>
+        </div>
+      </div>
+    `
     layer.unbindPopup()
     layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup()
   }
@@ -207,13 +207,13 @@ function initMapApp() {
         : "N/A"
 
       countryDetails.innerHTML = `
-                <p><strong>Capital:</strong> ${capital}</p>
-                <p><strong>Population:</strong> ${population}</p>
-                <p><strong>Area:</strong> ${area} km²</p>
-                <p><strong>Region:</strong> ${region} (${subregion})</p>
-                <p><strong>Languages:</strong> ${languages}</p>
-                <p><strong>Currencies:</strong> ${currencies}</p>
-            `
+        <p><strong>Capital:</strong> ${capital}</p>
+        <p><strong>Population:</strong> ${population}</p>
+        <p><strong>Area:</strong> ${area} km²</p>
+        <p><strong>Region:</strong> ${region} (${subregion})</p>
+        <p><strong>Languages:</strong> ${languages}</p>
+        <p><strong>Currencies:</strong> ${currencies}</p>
+      `
 
       // Fetch Wikipedia summary
       const wikiSummary = await fetchWikipediaSummary(countryName)
@@ -400,3 +400,5 @@ function initMapApp() {
     console.log("Map size recalculated")
   }, 500)
 }
+
+
