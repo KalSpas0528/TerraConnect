@@ -7,6 +7,7 @@ let visitedCountries = JSON.parse(localStorage.getItem("visitedCountries") || "[
 let gameActive = false
 let currentGameCountry = null
 const countryLayers = {}
+let labelLayer = null
 
 // Initialize the map when the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", initMapApp)
@@ -32,11 +33,18 @@ function initMapApp() {
     .addTo(map)
 
   // Use OpenStreetMap tiles instead of CartoDB (which was giving 400 errors)
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  const baseLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19,
     minZoom: 2,
   }).addTo(map)
+
+  // Add a separate layer for labels that we can toggle
+  labelLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+    minZoom: 2,
+  })
 
   const bounds = L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180))
   map.setMaxBounds(bounds)
@@ -256,10 +264,21 @@ function initMapApp() {
       markerToggleBtn.style.color = ""
     }
 
+    // Show game modal
     gameModal.style.display = "block"
 
     // Remove backdrop filter to prevent blurriness
     document.body.classList.add("game-active")
+
+    // Remove the labels layer to hide country names
+    if (labelLayer) {
+      map.removeLayer(labelLayer)
+    }
+
+    // Add the no-labels layer
+    if (window.noLabelsLayer) {
+      window.noLabelsLayer.addTo(map)
+    }
 
     startNewGame()
   }
@@ -283,6 +302,16 @@ function initMapApp() {
 
     // Remove game-active class
     document.body.classList.remove("game-active")
+
+    // Restore the normal map layer
+    if (window.noLabelsLayer) {
+      map.removeLayer(window.noLabelsLayer)
+    }
+
+    // Add back the labels layer if it was active
+    if (labelLayer) {
+      labelLayer.addTo(map)
+    }
 
     if (currentGameCountry && countryLayers[currentGameCountry]) {
       geojsonLayer.resetStyle(countryLayers[currentGameCountry])
@@ -313,14 +342,14 @@ function initMapApp() {
 
       // Calculate appropriate zoom level based on country size
       const countryArea = bounds.getSouthWest().distanceTo(bounds.getNorthEast())
-      let zoomLevel = 4 // Default zoom level
+      let zoomLevel = 3 // Default zoom level - zoomed out more
 
       if (countryArea > 5000000) {
         // Very large country
-        zoomLevel = 3
+        zoomLevel = 2
       } else if (countryArea < 500000) {
         // Small country
-        zoomLevel = 5
+        zoomLevel = 4
       }
 
       // Get the center of the country
@@ -455,6 +484,15 @@ function initMapApp() {
     // Add a marker
     L.marker([lat, lng]).addTo(map)
   })
+
+  // Initialize the no-labels layer for use during the game
+  window.noLabelsLayer = L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    {
+      attribution:
+        "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+    },
+  )
 }
 
 // Add marker toggle functionality to the header
@@ -484,6 +522,5 @@ document.addEventListener("DOMContentLoaded", () => {
     })
   }
 })
-
 
 

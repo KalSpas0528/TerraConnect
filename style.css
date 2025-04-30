@@ -19,13 +19,11 @@
   --transition: all 0.3s ease;
 }
 
-
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
 
 body {
   font-family: "Open Sans", sans-serif;
@@ -34,7 +32,6 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
 }
-
 
 h1,
 h2,
@@ -47,19 +44,16 @@ h6 {
   margin-bottom: 0.5rem;
 }
 
-
 a {
   color: var(--primary-color);
   text-decoration: none;
   transition: var(--transition);
 }
 
-
 a:hover {
   color: var(--primary-dark);
   text-decoration: underline;
 }
-
 
 button {
   cursor: pointer;
@@ -69,11 +63,9 @@ button {
   transition: var(--transition);
 }
 
-
 ul {
   list-style: none;
 }
-
 
 /* ===== BUTTONS ===== */
 .primary-button {
@@ -88,13 +80,11 @@ ul {
   gap: 8px;
 }
 
-
 .primary-button:hover {
   background-color: var(--primary-dark);
   transform: translateY(-2px);
   box-shadow: var(--shadow);
 }
-
 
 .secondary-button {
   background-color: var(--secondary-color);
@@ -108,13 +98,11 @@ ul {
   gap: 8px;
 }
 
-
 .secondary-button:hover {
   background-color: var(--secondary-dark);
   transform: translateY(-2px);
   box-shadow: var(--shadow);
 }
-
 
 .danger-button {
   background-color: var(--danger-color);
@@ -128,13 +116,11 @@ ul {
   gap: 8px;
 }
 
-
 .danger-button:hover {
   background-color: var(--danger-dark);
   transform: translateY(-2px);
   box-shadow: var(--shadow);
 }
-
 
 .action-button {
   background-color: transparent;
@@ -149,12 +135,10 @@ ul {
   border: 1px solid var(--border-color);
 }
 
-
 .action-button:hover {
   background-color: var(--bg-dark);
   transform: translateY(-2px);
 }
-
 
 .toggle-button {
   background-color: transparent;
@@ -167,11 +151,9 @@ ul {
   justify-content: center;
 }
 
-
 .toggle-button:hover {
   background-color: var(--bg-dark);
 }
-
 
 /* ===== MAP CONTAINER ===== */
 #map {
@@ -179,7 +161,6 @@ ul {
   width: 100%;
   z-index: 1;
 }
-
 
 /* ===== HOMEPAGE OVERLAY ===== */
 .homepage {
@@ -196,7 +177,6 @@ ul {
   text-align: center;
 }
 
-
 .homepage-content {
   background-color: rgba(255, 255, 255, 0.9);
   padding: 40px;
@@ -206,7 +186,6 @@ ul {
   width: 90%;
 }
 
-
 .homepage h1 {
   font-size: 3rem;
   margin-bottom: 20px;
@@ -214,13 +193,11 @@ ul {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-
 .homepage p {
   font-size: 1.2rem;
   margin-bottom: 30px;
   color: var(--text-color);
 }
-
 
 /* ===== HEADER ===== */
 .app-header {
@@ -237,14 +214,12 @@ ul {
   z-index: 1000;
 }
 
-
 .logo {
   font-family: "Montserrat", sans-serif;
   font-weight: 700;
   font-size: 1.5rem;
   color: var(--primary-color);
 }
-
 
 .search-bar {
   display: flex;
@@ -256,7 +231,6 @@ ul {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-
 .search-bar input {
   border: none;
   background: transparent;
@@ -265,7 +239,6 @@ ul {
   outline: none;
   font-size: 0.9rem;
 }
-
 
 .search-bar button {
   background-color: var(--primary-color);
@@ -281,18 +254,15 @@ ul {
   transition: var(--transition);
 }
 
-
 .search-bar button:hover {
   background-color: var(--primary-dark);
   transform: scale(1.05);
 }
 
-
 .header-actions {
   display: flex;
   gap: 10px;
 }
-
 
 /* ===== SIDEBAR ===== */
 .sidebar {
@@ -308,11 +278,9 @@ ul {
   transform: translateX(-240px);
 }
 
-
 .sidebar.expanded {
   transform: translateX(0);
 }
-
 
 .sidebar-header {
   display: flex;
@@ -323,12 +291,10 @@ ul {
   color: white;
 }
 
-
 .sidebar-header h3 {
   margin: 0;
   font-size: 1.1rem;
 }
-
 
 .sidebar-content {
   padding: 15px;
@@ -338,13 +304,11 @@ ul {
   flex-direction: column;
 }
 
-
 #visited-list {
   flex-grow: 1;
   margin-bottom: 15px;
   overflow-y: auto;
 }
-
 
 #visited-list li {
   padding: 10px;
@@ -354,16 +318,13 @@ ul {
   gap: 10px;
 }
 
-
 #visited-list li:last-child {
   border-bottom: none;
 }
 
-
 #visited-list li:hover {
   background-color: var(--bg-color);
 }
-
 
 /* ===== NEWS SECTION ===== */
 .news-section {
@@ -379,11 +340,9 @@ ul {
   transform: translateX(350px); /* Fully hidden by default */
 }
 
-
 .news-section.expanded {
   transform: translateX(0);
 }
-
 
 .news-header {
   display: flex;
@@ -394,19 +353,16 @@ ul {
   color: white;
 }
 
-
 .news-header h3 {
   margin: 0;
   font-size: 1.1rem;
 }
-
 
 .news-content {
   padding: 15px;
   height: calc(100% - 60px);
   overflow-y: auto;
 }
-
 
 .news-placeholder {
   display: flex;
@@ -419,13 +375,11 @@ ul {
   padding: 20px;
 }
 
-
 .placeholder-icon {
   font-size: 3rem;
   margin-bottom: 15px;
   opacity: 0.5;
 }
-
 
 .news-article {
   background-color: var(--bg-color);
@@ -436,18 +390,15 @@ ul {
   transition: var(--transition);
 }
 
-
 .news-article:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow);
 }
 
-
 .news-article h3 {
   font-size: 1rem;
   margin-bottom: 10px;
 }
-
 
 .news-article p {
   font-size: 0.9rem;
@@ -455,14 +406,12 @@ ul {
   margin-bottom: 10px;
 }
 
-
 .news-article .meta {
   display: flex;
   justify-content: space-between;
   font-size: 0.8rem;
   color: var(--text-lighter);
 }
-
 
 .news-error {
   background-color: rgba(231, 76, 60, 0.1);
@@ -472,7 +421,6 @@ ul {
   margin-top: 20px;
 }
 
-
 .news-image {
   width: 100%;
   height: 150px;
@@ -480,7 +428,6 @@ ul {
   border-radius: var(--border-radius);
   margin-bottom: 10px;
 }
-
 
 /* ===== MODALS ===== */
 .modal {
@@ -492,10 +439,13 @@ ul {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(3px);
 }
 
+/* Remove background overlay for game modal */
+body.game-active .modal {
+  background-color: transparent;
+  backdrop-filter: none;
+}
 
 .modal-content {
   background-color: var(--bg-light);
@@ -506,7 +456,6 @@ ul {
   max-width: 600px;
   animation: modalFadeIn 0.3s;
 }
-
 
 @keyframes modalFadeIn {
   from {
@@ -519,7 +468,6 @@ ul {
   }
 }
 
-
 .modal-header {
   padding: 15px 20px;
   border-bottom: 1px solid var(--border-color);
@@ -528,13 +476,11 @@ ul {
   align-items: center;
 }
 
-
 .modal-header h2 {
   margin: 0;
   font-size: 1.5rem;
   color: var(--primary-color);
 }
-
 
 .close-button {
   font-size: 1.8rem;
@@ -544,23 +490,19 @@ ul {
   transition: var(--transition);
 }
 
-
 .close-button:hover {
   color: var(--danger-color);
 }
 
-
 .modal-body {
   padding: 20px;
 }
-
 
 .modal-footer {
   padding: 15px 20px;
   border-top: 1px solid var(--border-color);
   text-align: right;
 }
-
 
 /* Game Modal Specific - FIXED POSITIONING */
 .game-modal-content {
@@ -570,15 +512,14 @@ ul {
   right: 20px;
   margin: 0;
   width: auto;
+  pointer-events: auto;
 }
-
 
 .input-group {
   display: flex;
   gap: 10px;
   margin: 15px 0;
 }
-
 
 .input-group input {
   flex-grow: 1;
@@ -589,12 +530,10 @@ ul {
   transition: var(--transition);
 }
 
-
 .input-group input:focus {
   border-color: var(--primary-color);
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
-
 
 .feedback {
   margin-top: 15px;
@@ -603,13 +542,11 @@ ul {
   font-weight: 600;
 }
 
-
 .feedback.success {
   background-color: rgba(46, 204, 113, 0.1);
   color: var(--secondary-dark);
   border-left: 3px solid var(--secondary-color);
 }
-
 
 .feedback.error {
   background-color: rgba(231, 76, 60, 0.1);
@@ -617,12 +554,10 @@ ul {
   border-left: 3px solid var(--danger-color);
 }
 
-
 /* Comparison Modal Specific */
 .comparison-modal-content {
   max-width: 800px;
 }
-
 
 .comparison-selectors {
   display: flex;
@@ -631,12 +566,10 @@ ul {
   margin-bottom: 20px;
 }
 
-
 .select-group {
   flex: 1;
   min-width: 200px;
 }
-
 
 .select-group label {
   display: block;
@@ -644,7 +577,6 @@ ul {
   font-weight: 600;
   font-size: 0.9rem;
 }
-
 
 .select-group select {
   width: 100%;
@@ -656,12 +588,10 @@ ul {
   background-color: white;
 }
 
-
 .select-group select:focus {
   border-color: var(--primary-color);
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
-
 
 .comparison-results {
   display: flex;
@@ -669,7 +599,6 @@ ul {
   gap: 20px;
   margin-top: 20px;
 }
-
 
 .comparison-column {
   flex: 1;
@@ -680,7 +609,6 @@ ul {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-
 .comparison-column h3 {
   color: var(--primary-color);
   margin-bottom: 15px;
@@ -688,16 +616,13 @@ ul {
   border-bottom: 1px solid var(--border-color);
 }
 
-
 .comparison-column p {
   margin-bottom: 10px;
 }
 
-
 .comparison-column p:last-child {
   margin-bottom: 0;
 }
-
 
 .comparison-flag {
   width: 100%;
@@ -708,19 +633,16 @@ ul {
   border: 1px solid var(--border-color);
 }
 
-
 /* Country Info Modal Specific */
 .country-info-modal-content {
   max-width: 800px;
 }
-
 
 .country-info-container {
   display: flex;
   gap: 20px;
   margin-bottom: 20px;
 }
-
 
 .country-flag-container {
   width: 200px;
@@ -730,23 +652,19 @@ ul {
   box-shadow: var(--shadow);
 }
 
-
 .country-flag-container img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-
 .country-details {
   flex: 1;
 }
 
-
 .country-details p {
   margin-bottom: 8px;
 }
-
 
 .country-wiki h3 {
   margin-bottom: 15px;
@@ -754,12 +672,10 @@ ul {
   border-bottom: 1px solid var(--border-color);
 }
 
-
 .wiki-content {
   line-height: 1.7;
   color: var(--text-light);
 }
-
 
 /* ===== LEAFLET CUSTOMIZATIONS ===== */
 .leaflet-popup-content-wrapper {
@@ -768,17 +684,14 @@ ul {
   padding: 0;
 }
 
-
 .leaflet-popup-content {
   margin: 0;
   width: 250px !important;
 }
 
-
 .country-popup {
   padding: 15px;
 }
-
 
 .country-popup h3 {
   margin-top: 0;
@@ -788,13 +701,11 @@ ul {
   text-align: center;
 }
 
-
 .country-popup-buttons {
   display: flex;
   gap: 10px;
   margin-top: 15px;
 }
-
 
 .country-popup-buttons button {
   flex: 1;
@@ -808,11 +719,9 @@ ul {
   transition: var(--transition);
 }
 
-
 .country-popup-buttons button:hover {
   background-color: var(--primary-dark);
 }
-
 
 /* ===== LOADING OVERLAY ===== */
 .loading-overlay {
@@ -829,7 +738,6 @@ ul {
   z-index: 2000;
 }
 
-
 .spinner {
   width: 50px;
   height: 50px;
@@ -840,7 +748,6 @@ ul {
   margin-bottom: 20px;
 }
 
-
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -850,7 +757,6 @@ ul {
   }
 }
 
-
 /* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 768px) {
   .app-header {
@@ -858,23 +764,19 @@ ul {
     padding: 10px;
   }
 
-
   .logo {
     margin-bottom: 10px;
   }
-
 
   .search-bar {
     width: 100%;
     margin-bottom: 10px;
   }
 
-
   .header-actions {
     width: 100%;
     justify-content: space-between;
   }
-
 
   .sidebar,
   .news-section {
@@ -885,34 +787,28 @@ ul {
     transform: translateY(calc(100% - 60px));
   }
 
-
   .sidebar.expanded,
   .news-section.expanded {
     transform: translateY(0);
   }
-
 
   .sidebar-header,
   .news-header {
     flex-direction: row-reverse;
   }
 
-
   .country-info-container {
     flex-direction: column;
   }
-
 
   .country-flag-container {
     width: 100%;
     height: 150px;
   }
 
-
   .comparison-selectors {
     flex-direction: column;
   }
-
 
   .game-modal-content {
     bottom: 10px;
@@ -923,7 +819,6 @@ ul {
   }
 }
 
-
 /* Custom styles for news sources */
 .news-source-icon {
   width: 16px;
@@ -931,7 +826,6 @@ ul {
   margin-right: 5px;
   vertical-align: middle;
 }
-
 
 .mock-notice {
   background-color: rgba(241, 196, 15, 0.1);
@@ -941,7 +835,6 @@ ul {
   font-size: 0.9rem;
   color: #7f8c8d;
 }
-
 
 /* News close button */
 .close-news-btn {
@@ -959,12 +852,10 @@ ul {
   border-radius: 50%;
 }
 
-
 .close-news-btn:hover {
   background-color: rgba(0, 0, 0, 0.1);
   color: var(--danger-color);
 }
-
 
 .country-news-header {
   display: flex;
@@ -973,14 +864,12 @@ ul {
   gap: 10px;
 }
 
-
 /* Country-specific news styling */
 .country-news-header {
   display: flex;
   align-items: center;
   margin-bottom: 15px;
 }
-
 
 .country-news-header img {
   width: 30px;
@@ -989,19 +878,16 @@ ul {
   border: 1px solid var(--border-color);
 }
 
-
 .country-news-header h2 {
   margin: 0;
   font-size: 1.3rem;
 }
-
 
 /* Marker toggle button */
 #markerToggleBtn.active {
   background-color: var(--primary-color);
   color: white;
 }
-
 
 /* Fix placeholder image */
 .country-flag-container img {
@@ -1012,40 +898,34 @@ ul {
   border: 1px solid var(--border-color);
 }
 
-
 /* Game modal improvements */
 .game-modal-content {
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: white;
   border: 2px solid var(--primary-color);
+  z-index: 1500;
 }
-
 
 .game-modal-content .modal-header {
   background-color: var(--primary-color);
   color: white;
 }
 
-
 .game-modal-content .modal-header h2 {
   color: white;
 }
 
-
 .game-modal-content .close-button {
   color: white;
 }
-
 
 /* Fix news panel */
 .news-section {
   transform: translateX(350px); /* Fully hidden by default */
 }
 
-
 .news-section.expanded {
   transform: translateX(0);
 }
-
 
 /* Coordinates popup styling */
 .coordinates-popup {
@@ -1054,60 +934,48 @@ ul {
   font-family: "Montserrat", sans-serif;
 }
 
-
 .coordinates-popup p {
   margin: 5px 0;
   font-size: 0.9rem;
 }
 
-
 /* Game mode improvements */
 body.game-active .modal {
-  backdrop-filter: none !important;
-  background-color: rgba(0, 0, 0, 0.3);
+  pointer-events: none;
 }
 
-
-.game-modal-content {
-  background-color: white;
-  border: 2px solid var(--primary-color);
+body.game-active .game-modal-content {
+  pointer-events: auto;
 }
-
 
 /* Fix for blurry map during game */
 .leaflet-container {
   will-change: transform;
 }
 
-
 .leaflet-tile-container img {
   will-change: transform;
 }
 
-
 /* Ensure the game modal has a solid background */
 .game-modal-content {
   background-color: white !important;
   opacity: 1 !important;
 }
-
-
-/* Ensure the game modal has a solid background */
-.game-modal-content {
-  background-color: white !important;
-  opacity: 1 !important;
-}
-
 
 /* Improve marker visibility */
 .leaflet-marker-icon {
   filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
 }
 
+/* Make sure map is interactive during game */
+.leaflet-container {
+  z-index: 1;
+}
 
-/* Ensure the game modal has a solid background */
-.game-modal-content {
-  background-color: white !important;
-  opacity: 1 !important;
+/* Satellite imagery for game mode */
+.leaflet-tile-loaded {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 
