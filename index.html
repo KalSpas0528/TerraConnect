@@ -4,6 +4,8 @@
     <title>TerraConnect: Global Interactive News Map</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Add this meta tag to help with rendering -->
+    <meta name="renderer" content="webkit">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -21,10 +23,8 @@
         </div>
     </div>
 
-
     <!-- Map Container -->
     <div id="map"></div>
-
 
     <!-- Header with Search Bar -->
     <header class="app-header">
@@ -46,7 +46,6 @@
         </div>
     </header>
 
-
     <!-- Visited Countries Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
@@ -63,7 +62,6 @@
         </div>
     </div>
 
-
     <!-- News Section -->
     <div class="news-section">
         <div class="news-header">
@@ -79,7 +77,6 @@
             </div>
         </div>
     </div>
-
 
     <!-- Game Modal -->
     <div id="gameModal" class="modal">
@@ -101,7 +98,6 @@
             </div>
         </div>
     </div>
-
 
     <!-- Country Comparison Modal -->
     <div id="comparisonModal" class="modal">
@@ -131,7 +127,6 @@
         </div>
     </div>
 
-
     <!-- Country Info Modal -->
     <div id="countryInfoModal" class="modal">
         <div class="modal-content country-info-modal-content">
@@ -158,13 +153,11 @@
         </div>
     </div>
 
-
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="spinner"></div>
         <p>Loading...</p>
     </div>
-
 
     <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -174,7 +167,4 @@
     <script src="js/ui.js"></script>
 </body>
 </html>
-
-
-
 
