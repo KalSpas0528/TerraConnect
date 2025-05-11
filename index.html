@@ -10,43 +10,45 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <!-- Add favicon to prevent 404 error -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌍</text></svg>">
 </head>
 <body>
     <!-- Homepage Overlay -->
     <div id="homepage" class="homepage">
         <div class="homepage-content">
-  <h1>TerraConnect</h1>
-  <p>Explore the world map, discover country information, and read the latest news.</p>
-  <div class="homepage-features">
-    <div class="feature-item">
-      <i class="fas fa-globe"></i>
-      <span>Interactive World Map</span>
-    </div>
-    <div class="feature-item">
-      <i class="fas fa-info-circle"></i>
-      <span>Country Details</span>
-    </div>
-    <div class="feature-item">
-      <i class="fas fa-newspaper"></i>
-      <span>Latest News</span>
-    </div>
-    <div class="feature-item">
-      <i class="fas fa-gamepad"></i>
-      <span>Geography Game</span>
-    </div>
-    <div class="feature-item">
-      <i class="fas fa-list"></i>
-      <span>Travel Bucket List</span>
-    </div>
-    <div class="feature-item">
-      <i class="fas fa-moon"></i>
-      <span>Dark Mode</span>
-    </div>
-  </div>
-  <button id="enterMapBtn" class="primary-button">
-    <i class="fas fa-globe-americas"></i> Enter Map
-  </button>
-</div>
+            <h1>TerraConnect</h1>
+            <p>Explore the world map, discover country information, and read the latest news.</p>
+            <div class="homepage-features">
+                <div class="feature-item">
+                    <i class="fas fa-globe"></i>
+                    <span>Interactive World Map</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Country Details</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-newspaper"></i>
+                    <span>Latest News</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Geography Game</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Educational Learning Mode</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </div>
+            </div>
+            <button id="enterMapBtn" class="primary-button">
+                <i class="fas fa-globe-americas"></i> Enter Map
+            </button>
+        </div>
     </div>
 
     <!-- Map Container -->
@@ -62,6 +64,9 @@
             </button>
         </div>
         <div class="header-actions">
+            <button id="learnModeBtn" class="action-button">
+                <i class="fas fa-graduation-cap"></i> Learn
+            </button>
             <button id="compareCountriesBtn" class="action-button">
                 <i class="fas fa-balance-scale"></i> Compare
             </button>
@@ -179,6 +184,63 @@
         </div>
     </div>
 
+    <!-- Learn Modal -->
+    <div id="learnModal" class="modal">
+        <div class="modal-content learn-modal-content">
+            <div class="modal-header">
+                <h2>Learn About Countries</h2>
+                <span id="closeLearnModal" class="close-button">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="learn-tabs">
+                    <button class="learn-tab-button active" data-tab="flashcards">Flashcards</button>
+                    <button class="learn-tab-button" data-tab="capitals">Capitals</button>
+                    <button class="learn-tab-button" data-tab="flags">Flags</button>
+                </div>
+                
+                <div class="learn-content">
+                    <div id="flashcards-tab" class="learn-tab-content active">
+                        <div class="flashcard">
+                            <div class="flashcard-front">
+                                <div id="flashcard-question">Loading...</div>
+                                <button id="show-answer" class="secondary-button">Show Answer</button>
+                            </div>
+                            <div class="flashcard-back hidden">
+                                <div id="flashcard-answer">Loading...</div>
+                                <button id="next-flashcard" class="primary-button">Next Card</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="capitals-tab" class="learn-tab-content">
+                        <div class="capitals-quiz">
+                            <h3 id="capital-question">What is the capital of...</h3>
+                            <div class="capital-options" id="capital-options">
+                                <button class="capital-option">Loading...</button>
+                            </div>
+                            <div id="capital-feedback" class="feedback"></div>
+                            <button id="next-capital" class="primary-button hidden">Next Question</button>
+                        </div>
+                    </div>
+                    
+                    <div id="flags-tab" class="learn-tab-content">
+                        <div class="flags-quiz">
+                            <h3>Which country does this flag belong to?</h3>
+                            <div class="flag-container">
+                                <img id="flag-image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Country flag">
+                            </div>
+                            <div class="flag-options" id="flag-options">
+                                <button class="flag-option">Loading...</button>
+                            </div>
+                            <div id="flag-feedback" class="feedback"></div>
+                            <button id="next-flag" class="primary-button hidden">Next Flag</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="spinner"></div>
@@ -192,7 +254,7 @@
     <script src="js/news.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/theme.js"></script>
-    <script src="js/bucket-list.js"></script>
+    <script src="js/learn.js"></script>
 </body>
 </html>
 

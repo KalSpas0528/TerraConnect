@@ -3,86 +3,15 @@
 document.addEventListener("DOMContentLoaded", initLearnMode)
 
 function initLearnMode() {
-  // Create learn button in header
-  const headerActions = document.querySelector(".header-actions")
-  if (headerActions) {
-    const learnBtn = document.createElement("button")
-    learnBtn.id = "learnModeBtn"
-    learnBtn.className = "action-button"
-    learnBtn.innerHTML = '<i class="fas fa-graduation-cap"></i> Learn'
+  // Get the learn button that's already in the HTML
+  const learnBtn = document.getElementById("learnModeBtn")
 
-    // Insert before the game button
-    const gameBtn = document.getElementById("startGameBtn")
-    if (gameBtn) {
-      headerActions.insertBefore(learnBtn, gameBtn)
-    } else {
-      headerActions.appendChild(learnBtn)
-    }
-
+  if (learnBtn) {
     learnBtn.addEventListener("click", openLearnModal)
   }
 
-  // Initialize learn modal
-  const learnModal = document.createElement("div")
-  learnModal.id = "learnModal"
-  learnModal.className = "modal"
-  learnModal.innerHTML = `
-    <div class="modal-content learn-modal-content">
-      <div class="modal-header">
-        <h2>Learn About Countries</h2>
-        <span id="closeLearnModal" class="close-button">&times;</span>
-      </div>
-      <div class="modal-body">
-        <div class="learn-tabs">
-          <button class="learn-tab-button active" data-tab="flashcards">Flashcards</button>
-          <button class="learn-tab-button" data-tab="capitals">Capitals</button>
-          <button class="learn-tab-button" data-tab="flags">Flags</button>
-        </div>
-        
-        <div class="learn-content">
-          <div id="flashcards-tab" class="learn-tab-content active">
-            <div class="flashcard">
-              <div class="flashcard-front">
-                <div id="flashcard-question">Loading...</div>
-                <button id="show-answer" class="secondary-button">Show Answer</button>
-              </div>
-              <div class="flashcard-back hidden">
-                <div id="flashcard-answer">Loading...</div>
-                <button id="next-flashcard" class="primary-button">Next Card</button>
-              </div>
-            </div>
-          </div>
-          
-          <div id="capitals-tab" class="learn-tab-content">
-            <div class="capitals-quiz">
-              <h3 id="capital-question">What is the capital of...</h3>
-              <div class="capital-options" id="capital-options">
-                <button class="capital-option">Loading...</button>
-              </div>
-              <div id="capital-feedback" class="feedback"></div>
-              <button id="next-capital" class="primary-button hidden">Next Question</button>
-            </div>
-          </div>
-          
-          <div id="flags-tab" class="learn-tab-content">
-            <div class="flags-quiz">
-              <h3>Which country does this flag belong to?</h3>
-              <div class="flag-container">
-                <img id="flag-image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Country flag">
-              </div>
-              <div class="flag-options" id="flag-options">
-                <button class="flag-option">Loading...</button>
-              </div>
-              <div id="flag-feedback" class="feedback"></div>
-              <button id="next-flag" class="primary-button hidden">Next Flag</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `
-
-  document.body.appendChild(learnModal)
+  // Initialize learn modal (already in HTML)
+  const learnModal = document.getElementById("learnModal")
 
   // Add event listeners
   document.getElementById("closeLearnModal").addEventListener("click", closeLearnModal)
@@ -133,12 +62,13 @@ function initLearnMode() {
   document.getElementById("next-capital").addEventListener("click", initCapitalsQuiz)
   document.getElementById("next-flag").addEventListener("click", initFlagsQuiz)
 
-  // Initialize with flashcards
-  window.addEventListener("load", () => {
+  // Initialize with flashcards when country data is available
+  const checkDataInterval = setInterval(() => {
     if (window.countryData && window.countryData.length > 0) {
       initFlashcards()
+      clearInterval(checkDataInterval)
     }
-  })
+  }, 1000)
 }
 
 function openLearnModal() {
@@ -190,6 +120,7 @@ function getRandomCountries(count) {
 // Flashcards
 function initFlashcards() {
   if (!window.countryData || window.countryData.length === 0) {
+    document.getElementById("flashcard-question").textContent = "Loading country data..."
     return
   }
 
@@ -238,6 +169,7 @@ function initFlashcards() {
 // Capitals Quiz
 function initCapitalsQuiz() {
   if (!window.countryData || window.countryData.length === 0) {
+    document.getElementById("capital-question").textContent = "Loading country data..."
     return
   }
 
@@ -305,6 +237,7 @@ function initCapitalsQuiz() {
 // Flags Quiz
 function initFlagsQuiz() {
   if (!window.countryData || window.countryData.length === 0) {
+    document.getElementById("flag-image").alt = "Loading country data..."
     return
   }
 

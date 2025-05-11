@@ -12,6 +12,19 @@ function initNewsFeature() {
   // Country-specific news database for fallback
   const countryNewsDatabase = {}
 
+  // Country name corrections for API
+  const countryNameCorrections = {
+    "Guinea Bissau": "Guinea-Bissau",
+    "Democratic Republic of the Congo": "Democratic Republic of Congo",
+    "Republic of the Congo": "Republic of Congo",
+    "United States": "United States of America",
+    "Côte d'Ivoire": "Ivory Coast",
+    "Timor-Leste": "East Timor",
+    Czechia: "Czech Republic",
+    "North Macedonia": "Macedonia",
+    Eswatini: "Swaziland",
+  }
+
   if (!newsContent) {
     console.error("#newsContent element not found.")
     return
@@ -104,9 +117,12 @@ function initNewsFeature() {
     try {
       console.log(`Fetching news for ${country}`)
 
+      // Check if we need to correct the country name for the API
+      const correctedCountryName = countryNameCorrections[country] || country
+
       // First, get the country code using the REST Countries API
       const countryResponse = await fetch(
-        `https://restcountries.com/v3.1/name/${encodeURIComponent(country)}?fullText=true`,
+        `https://restcountries.com/v3.1/name/${encodeURIComponent(correctedCountryName)}?fullText=true`,
       )
 
       if (!countryResponse.ok) {
@@ -165,11 +181,19 @@ function initNewsFeature() {
         const data = await response.json()
 
         // Get country flag
-        const countryResponse = await fetch(
-          `https://restcountries.com/v3.1/name/${encodeURIComponent(country)}?fullText=true`,
-        )
-        const countryData = await countryResponse.json()
-        const countryFlag = countryData[0]?.flags?.png
+        let countryFlag = null
+        try {
+          // Check if we need to correct the country name for the API
+          const correctedCountryName = countryNameCorrections[country] || country
+
+          const countryResponse = await fetch(
+            `https://restcountries.com/v3.1/name/${encodeURIComponent(correctedCountryName)}?fullText=true`,
+          )
+          const countryData = await countryResponse.json()
+          countryFlag = countryData[0]?.flags?.png
+        } catch (e) {
+          console.error("Could not fetch country flag:", e)
+        }
 
         return {
           articles: data.articles || [],
@@ -196,8 +220,11 @@ function initNewsFeature() {
         // Try to get country flag
         let countryFlag = null
         try {
+          // Check if we need to correct the country name for the API
+          const correctedCountryName = countryNameCorrections[country] || country
+
           const countryResponse = await fetch(
-            `https://restcountries.com/v3.1/name/${encodeURIComponent(country)}?fullText=true`,
+            `https://restcountries.com/v3.1/name/${encodeURIComponent(correctedCountryName)}?fullText=true`,
           )
           const countryData = await countryResponse.json()
           countryFlag = countryData[0]?.flags?.png
@@ -313,4 +340,6 @@ function initNewsFeature() {
     }
   })
 }
+
+
 
