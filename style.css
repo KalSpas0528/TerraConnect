@@ -1412,5 +1412,89 @@ body.game-active .game-modal-content {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
+/* Junior Explorer Mode Styles */
+#juniorExplorerBtn.active {
+  background-color: #27ae60;
+  color: white;
+}
+
+.junior-explorer-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.junior-explorer-message h3 {
+  margin: 15px 0;
+  color: var(--primary-color);
+}
+
+.junior-explorer-message p {
+  margin-bottom: 15px;
+  color: var(--text-light);
+}
+
+.junior-explorer-message .primary-button {
+  margin-top: 10px;
+}
+
+.junior-explorer-image {
+  width: 200px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+  margin-bottom: 15px;
+}
+
+/* Notification styles */
+.notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  border-radius: var(--border-radius);
+  background-color: white;
+  box-shadow: var(--shadow-strong);
+  z-index: 2000;
+  transform: translateX(120%);
+  transition: transform 0.3s ease;
+}
+
+.notification.show {
+  transform: translateX(0);
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.notification-content i {
+  font-size: 1.5rem;
+}
+
+.notification-content p {
+  margin: 0;
+}
+
+.junior-notification {
+  border-left: 4px solid #27ae60;
+}
+
+.junior-notification i {
+  color: #27ae60;
+}
+
+.adult-notification {
+  border-left: 4px solid var(--primary-color);
+}
+
+.adult-notification i {
+  color: var(--primary-color);
+}
+
 
 

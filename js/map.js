@@ -170,21 +170,57 @@ function initMapApp() {
     })
 
   function showCountryPopup(countryName, layer) {
-    const popupContent = `
-      <div class="country-popup">
-        <h3>${countryName}</h3>
-        <div class="country-popup-buttons">
-          <button onclick="showCountryInfo('${countryName}')">
-            <i class="fas fa-info-circle"></i> Details
-          </button>
-          <button onclick="showCountryNews('${countryName}')">
-            <i class="fas fa-newspaper"></i> News
-          </button>
+    // Check if Junior Explorer mode is enabled
+    if (window.isJuniorExplorerEnabled && window.isJuniorExplorerEnabled()) {
+      // Simplified popup for Junior Explorer mode
+      const popupContent = `
+        <div class="country-popup">
+          <h3>${countryName}</h3>
+          <div class="country-popup-buttons">
+            <button onclick="showCountryInfo('${countryName}')">
+              <i class="fas fa-info-circle"></i> Details
+            </button>
+            <button onclick="openLearnForCountry('${countryName}')">
+              <i class="fas fa-graduation-cap"></i> Learn
+            </button>
+          </div>
         </div>
-      </div>
-    `
-    layer.unbindPopup()
-    layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup()
+      `
+      layer.unbindPopup()
+      layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup()
+    } else {
+      // Regular popup with news button
+      const popupContent = `
+        <div class="country-popup">
+          <h3>${countryName}</h3>
+          <div class="country-popup-buttons">
+            <button onclick="showCountryInfo('${countryName}')">
+              <i class="fas fa-info-circle"></i> Details
+            </button>
+            <button onclick="showCountryNews('${countryName}')">
+              <i class="fas fa-newspaper"></i> News
+            </button>
+          </div>
+        </div>
+      `
+      layer.unbindPopup()
+      layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup()
+    }
+  }
+
+  // Add this function to open the learn modal for a specific country
+  window.openLearnForCountry = (countryName) => {
+    // First close the popup
+    map.closePopup()
+
+    // Then open the learn modal
+    const learnBtn = document.getElementById("learnModeBtn")
+    if (learnBtn) {
+      learnBtn.click()
+
+      // Set a global variable to indicate which country to show
+      window.learnTargetCountry = countryName
+    }
   }
 
   // Then modify the showCountryInfo function to use this correction

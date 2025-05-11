@@ -271,6 +271,37 @@ function initNewsFeature() {
     const countryName = e.detail.country
     if (!countryName) return
 
+    // Check if Junior Explorer mode is enabled
+    if (window.isJuniorExplorerEnabled && window.isJuniorExplorerEnabled()) {
+      // In Junior Explorer mode, show a child-friendly message instead of news
+      newsContent.innerHTML = `
+      <div class="junior-explorer-message">
+        <img src="https://source.unsplash.com/featured/?kids,learning" alt="Junior Explorer mode" class="junior-explorer-image">
+        <h3>News is not available in Junior Explorer Mode</h3>
+        <p>Ask a grown-up to turn off Junior Explorer Mode if you want to see news about ${countryName}.</p>
+        <p>Instead, try the Learn button to discover fun facts about countries!</p>
+        <button id="openLearnBtn" class="primary-button">
+          <i class="fas fa-graduation-cap"></i> Learn About Countries
+        </button>
+      </div>
+    `
+
+      // Add event listener to the learn button
+      document.getElementById("openLearnBtn").addEventListener("click", () => {
+        // Close news panel
+        newsSection.classList.remove("expanded")
+        newsToggle.innerHTML = '<i class="fas fa-chevron-left"></i>'
+
+        // Open learn modal
+        const learnBtn = document.getElementById("learnModeBtn")
+        if (learnBtn) {
+          learnBtn.click()
+        }
+      })
+
+      return
+    }
+
     // Expand the news panel
     newsSection.classList.add("expanded")
     newsToggle.innerHTML = '<i class="fas fa-chevron-right"></i>'
