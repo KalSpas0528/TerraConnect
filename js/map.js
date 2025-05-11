@@ -80,6 +80,21 @@ function initMapApp() {
     return countryMap[country] || country
   }
 
+  // Fetch country data for learning mode
+  fetch("https://restcountries.com/v3.1/all")
+    .then((response) => {
+      if (!response.ok) throw new Error("Failed to load country data")
+      return response.json()
+    })
+    .then((data) => {
+      // Store country data globally for learning mode
+      window.countryData = data
+      console.log("Country data loaded for learning mode")
+    })
+    .catch((err) => {
+      console.error("Error loading country data:", err)
+    })
+
   // Load GeoJSON data from the file
   fetch("https://raw.githubusercontent.com/kalspas0528/TerraConnect/main/countries.geojson")
     .then((response) => {
@@ -152,21 +167,6 @@ function initMapApp() {
     `
     layer.unbindPopup()
     layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup()
-
-    // Dispatch event for bucket list integration
-    setTimeout(() => {
-      const popup = layer.getPopup()
-      if (popup && popup._contentNode) {
-        document.dispatchEvent(
-          new CustomEvent("countryPopupCreated", {
-            detail: {
-              countryName: countryName,
-              popupElement: popup._contentNode,
-            },
-          }),
-        )
-      }
-    }, 10)
   }
 
   // Make these functions available globally
