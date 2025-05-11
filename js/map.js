@@ -322,7 +322,8 @@ function initMapApp() {
 
   // Initialize variables
   let previousMarkersEnabled = false
-  window.markersEnabled = false
+  const markersEnabled = false
+  window.markersEnabled = markersEnabled
 
   if (startGameBtn) {
     startGameBtn.addEventListener("click", () => {

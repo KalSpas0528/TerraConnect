@@ -28,7 +28,7 @@ function initJuniorExplorer() {
 
   // Function to toggle Junior Explorer mode
   function toggleJuniorExplorer() {
-    if (isJuniorExplorerEnabled()) {
+    if (document.body.classList.contains("junior-explorer")) {
       disableJuniorExplorer()
     } else {
       enableJuniorExplorer()
@@ -67,7 +67,7 @@ function initJuniorExplorer() {
     showNotification("Junior Explorer mode disabled", "adult")
   }
 
-  // Function to check if Junior Explorer mode is enabled
+  // Function to check if Junior Explorer mode is enabled - make it globally available
   window.isJuniorExplorerEnabled = () => document.body.classList.contains("junior-explorer")
 
   // Function to show notification
