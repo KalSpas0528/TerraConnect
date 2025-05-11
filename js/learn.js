@@ -1,97 +1,53 @@
-// === learn.js - Handles country learning functionality ===
+// === learn.js - Handles educational learning functionality for children ===
+
 
 document.addEventListener("DOMContentLoaded", initLearnMode)
+
 
 function initLearnMode() {
   // Get the learn button that's already in the HTML
   const learnBtn = document.getElementById("learnModeBtn")
 
+
   if (learnBtn) {
     learnBtn.addEventListener("click", openLearnModal)
   }
 
+
   // Initialize learn modal (already in HTML)
   const learnModal = document.getElementById("learnModal")
+
 
   // Add event listeners
   document.getElementById("closeLearnModal").addEventListener("click", closeLearnModal)
 
-  // Tab switching
-  const tabButtons = document.querySelectorAll(".learn-tab-button")
-  tabButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      // Remove active class from all buttons
-      tabButtons.forEach((btn) => btn.classList.remove("active"))
 
-      // Add active class to clicked button
-      button.classList.add("active")
-
-      // Hide all tab content
-      document.querySelectorAll(".learn-tab-content").forEach((content) => {
-        content.classList.remove("active")
-      })
-
-      // Show selected tab content
-      const tabId = button.getAttribute("data-tab") + "-tab"
-      document.getElementById(tabId).classList.add("active")
-
-      // Initialize content for the selected tab
-      if (tabId === "flashcards-tab") {
-        initFlashcards()
-      } else if (tabId === "capitals-tab") {
-        initCapitalsQuiz()
-      } else if (tabId === "flags-tab") {
-        initFlagsQuiz()
-      }
-    })
+  // Window click to close modal
+  window.addEventListener("click", (e) => {
+    if (e.target === learnModal) {
+      closeLearnModal()
+    }
   })
 
-  // Flashcard functionality
-  document.getElementById("show-answer").addEventListener("click", () => {
-    document.querySelector(".flashcard-front").classList.add("hidden")
-    document.querySelector(".flashcard-back").classList.remove("hidden")
-  })
 
-  document.getElementById("next-flashcard").addEventListener("click", () => {
-    document.querySelector(".flashcard-front").classList.remove("hidden")
-    document.querySelector(".flashcard-back").classList.add("hidden")
-    initFlashcards()
-  })
-
-  // Next buttons for quizzes
-  document.getElementById("next-capital").addEventListener("click", initCapitalsQuiz)
-  document.getElementById("next-flag").addEventListener("click", initFlagsQuiz)
-
-  // Initialize with flashcards when country data is available
+  // Initialize the explore mode when country data is available
   const checkDataInterval = setInterval(() => {
     if (window.countryData && window.countryData.length > 0) {
-      initFlashcards()
+      initExploreMode()
       clearInterval(checkDataInterval)
     }
   }, 1000)
 }
 
+
 function openLearnModal() {
   const learnModal = document.getElementById("learnModal")
   if (learnModal) {
     learnModal.style.display = "block"
-
-    // Initialize content based on active tab
-    const activeTab = document.querySelector(".learn-tab-button.active")
-    if (activeTab) {
-      const tabId = activeTab.getAttribute("data-tab") + "-tab"
-      if (tabId === "flashcards-tab") {
-        initFlashcards()
-      } else if (tabId === "capitals-tab") {
-        initCapitalsQuiz()
-      } else if (tabId === "flags-tab") {
-        initFlagsQuiz()
-      }
-    } else {
-      initFlashcards()
-    }
+    initExploreMode()
   }
 }
+
 
 function closeLearnModal() {
   const learnModal = document.getElementById("learnModal")
@@ -100,216 +56,175 @@ function closeLearnModal() {
   }
 }
 
-// Get random countries for quizzes
+
+// Get random countries for exploration
 function getRandomCountries(count) {
   if (!window.countryData || window.countryData.length === 0) {
     return []
   }
 
+
   const countries = [...window.countryData]
   const result = []
+
 
   for (let i = 0; i < count && countries.length > 0; i++) {
     const randomIndex = Math.floor(Math.random() * countries.length)
     result.push(countries.splice(randomIndex, 1)[0])
   }
 
+
   return result
 }
 
-// Flashcards
-function initFlashcards() {
-  if (!window.countryData || window.countryData.length === 0) {
-    document.getElementById("flashcard-question").textContent = "Loading country data..."
-    return
-  }
 
-  const randomCountry = getRandomCountries(1)[0]
+// Initialize the explore mode
+function initExploreMode() {
+  // Get a random country to explore
+  const country = getRandomCountries(1)[0]
+  if (!country) return
 
-  // Set question
-  const questionTypes = [
-    `What is the capital of ${randomCountry.name.common}?`,
-    `${randomCountry.name.common} is located in which continent?`,
-    `What is the population of ${randomCountry.name.common}?`,
-    `What is the official language of ${randomCountry.name.common}?`,
-    `What currency is used in ${randomCountry.name.common}?`,
-  ]
 
-  const randomQuestionIndex = Math.floor(Math.random() * questionTypes.length)
-  const question = questionTypes[randomQuestionIndex]
-  document.getElementById("flashcard-question").textContent = question
+  // Update the modal content with the new child-friendly learning interface
+  const modalBody = document.querySelector("#learnModal .modal-body")
 
-  // Set answer
-  let answer = ""
-  switch (randomQuestionIndex) {
-    case 0: // Capital
-      answer = randomCountry.capital ? randomCountry.capital[0] : "No official capital"
-      break
-    case 1: // Continent
-      answer = randomCountry.region || "Unknown"
-      break
-    case 2: // Population
-      answer = randomCountry.population ? randomCountry.population.toLocaleString() : "Unknown"
-      break
-    case 3: // Language
-      answer = randomCountry.languages ? Object.values(randomCountry.languages).join(", ") : "No official language data"
-      break
-    case 4: // Currency
-      answer = randomCountry.currencies
-        ? Object.values(randomCountry.currencies)
-            .map((c) => `${c.name} (${c.symbol})`)
-            .join(", ")
-        : "No official currency data"
-      break
-  }
 
-  document.getElementById("flashcard-answer").textContent = answer
-}
-
-// Capitals Quiz
-function initCapitalsQuiz() {
-  if (!window.countryData || window.countryData.length === 0) {
-    document.getElementById("capital-question").textContent = "Loading country data..."
-    return
-  }
-
-  // Get 4 random countries
-  const quizCountries = getRandomCountries(4)
-  const correctCountry = quizCountries[0]
-
-  // Set question
-  document.getElementById("capital-question").textContent = `What is the capital of ${correctCountry.name.common}?`
-
-  // Create options
-  const optionsContainer = document.getElementById("capital-options")
-  optionsContainer.innerHTML = ""
-
-  // Shuffle options
-  const shuffledCountries = [...quizCountries].sort(() => Math.random() - 0.5)
-
-  shuffledCountries.forEach((country) => {
-    const capital = country.capital ? country.capital[0] : "No official capital"
-    const option = document.createElement("button")
-    option.className = "capital-option"
-    option.textContent = capital
-
-    option.addEventListener("click", () => {
-      // Disable all options
-      document.querySelectorAll(".capital-option").forEach((btn) => {
-        btn.disabled = true
-      })
-
-      const feedback = document.getElementById("capital-feedback")
-      const nextButton = document.getElementById("next-capital")
-
-      if (country === correctCountry) {
-        option.classList.add("correct-option")
-        feedback.textContent = "Correct!"
-        feedback.className = "feedback success"
-      } else {
-        option.classList.add("wrong-option")
-
-        // Highlight correct answer
-        document.querySelectorAll(".capital-option").forEach((btn) => {
-          if (btn.textContent === (correctCountry.capital ? correctCountry.capital[0] : "No official capital")) {
-            btn.classList.add("correct-option")
+  // Create a simple, colorful, and educational interface
+  modalBody.innerHTML = `
+    <div class="learn-container">
+      <div class="learn-header">
+        <h3>Let's Explore: ${country.name.common}</h3>
+        <button id="exploreNewCountry" class="primary-button">
+          <i class="fas fa-globe"></i> Explore Another Country
+        </button>
+      </div>
+     
+      <div class="learn-content">
+        <div class="learn-flag-container">
+          <img src="${country.flags.png}" alt="Flag of ${country.name.common}" class="learn-flag">
+          <p class="learn-flag-caption">This is the flag of ${country.name.common}!</p>
+        </div>
+       
+        <div class="learn-facts">
+          <div class="learn-fact">
+            <i class="fas fa-map-marker-alt"></i>
+            <p>${country.name.common} is located in <strong>${country.region || "the world"}</strong>.</p>
+          </div>
+         
+          <div class="learn-fact">
+            <i class="fas fa-city"></i>
+            <p>The capital city is <strong>${country.capital ? country.capital[0] : "unknown"}</strong>.</p>
+          </div>
+         
+          <div class="learn-fact">
+            <i class="fas fa-users"></i>
+            <p>About <strong>${(country.population / 1000000).toFixed(1)} million</strong> people live there.</p>
+          </div>
+         
+          ${
+            country.languages
+              ? `
+          <div class="learn-fact">
+            <i class="fas fa-comments"></i>
+            <p>People speak ${Object.values(country.languages).slice(0, 2).join(" and ")}.</p>
+          </div>
+          `
+              : ""
           }
-        })
-
-        feedback.textContent = "Incorrect. Try again!"
-        feedback.className = "feedback error"
-      }
-
-      nextButton.classList.remove("hidden")
-    })
-
-    optionsContainer.appendChild(option)
-  })
-
-  // Reset feedback and next button
-  const feedback = document.getElementById("capital-feedback")
-  feedback.textContent = ""
-  feedback.className = "feedback"
-
-  document.getElementById("next-capital").classList.add("hidden")
-}
-
-// Flags Quiz
-function initFlagsQuiz() {
-  if (!window.countryData || window.countryData.length === 0) {
-    document.getElementById("flag-image").alt = "Loading country data..."
-    return
-  }
-
-  // Get 4 random countries
-  const quizCountries = getRandomCountries(4)
-  const correctCountry = quizCountries[0]
-
-  // Set flag image
-  const flagImage = document.getElementById("flag-image")
-  flagImage.src = correctCountry.flags.png
-  flagImage.alt = `Flag of ${correctCountry.name.common}`
-
-  // Create options
-  const optionsContainer = document.getElementById("flag-options")
-  optionsContainer.innerHTML = ""
-
-  // Shuffle options
-  const shuffledCountries = [...quizCountries].sort(() => Math.random() - 0.5)
-
-  shuffledCountries.forEach((country) => {
-    const option = document.createElement("button")
-    option.className = "flag-option"
-    option.textContent = country.name.common
-
-    option.addEventListener("click", () => {
-      // Disable all options
-      document.querySelectorAll(".flag-option").forEach((btn) => {
-        btn.disabled = true
-      })
-
-      const feedback = document.getElementById("flag-feedback")
-      const nextButton = document.getElementById("next-flag")
-
-      if (country === correctCountry) {
-        option.classList.add("correct-option")
-        feedback.textContent = "Correct!"
-        feedback.className = "feedback success"
-      } else {
-        option.classList.add("wrong-option")
-
-        // Highlight correct answer
-        document.querySelectorAll(".flag-option").forEach((btn) => {
-          if (btn.textContent === correctCountry.name.common) {
-            btn.classList.add("correct-option")
+         
+          ${
+            country.borders && country.borders.length > 0
+              ? `
+          <div class="learn-fact">
+            <i class="fas fa-handshake"></i>
+            <p>${country.name.common} has ${country.borders.length} neighboring ${country.borders.length === 1 ? "country" : "countries"}.</p>
+          </div>
+          `
+              : ""
           }
-        })
+        </div>
+      </div>
+     
+      <div class="learn-actions">
+        <button id="showOnMap" class="secondary-button">
+          <i class="fas fa-map"></i> Show on Map
+        </button>
+        <button id="funFact" class="secondary-button">
+          <i class="fas fa-star"></i> Fun Fact
+        </button>
+      </div>
+     
+      <div id="funFactContainer" class="fun-fact-container hidden">
+        <p id="funFactText"></p>
+      </div>
+    </div>
+  `
 
-        feedback.textContent = "Incorrect. Try again!"
-        feedback.className = "feedback error"
-      }
 
-      nextButton.classList.remove("hidden")
-    })
+  // Add event listeners
+  document.getElementById("exploreNewCountry").addEventListener("click", initExploreMode)
 
-    optionsContainer.appendChild(option)
-  })
 
-  // Reset feedback and next button
-  const feedback = document.getElementById("flag-feedback")
-  feedback.textContent = ""
-  feedback.className = "feedback"
-
-  document.getElementById("next-flag").classList.add("hidden")
-}
-
-// Window click to close modal
-window.addEventListener("click", (e) => {
-  const learnModal = document.getElementById("learnModal")
-  if (e.target === learnModal) {
+  document.getElementById("showOnMap").addEventListener("click", () => {
+    // Close the modal
     closeLearnModal()
+
+
+    // Find the country on the map and zoom to it
+    if (window.countryLayers && window.countryLayers[country.name.common]) {
+      const layer = window.countryLayers[country.name.common]
+      window.map.fitBounds(layer.getBounds())
+      layer.setStyle({ color: "#e74c3c", weight: 3, fillOpacity: 0.2 })
+
+
+      // Reset style after 3 seconds
+      setTimeout(() => {
+        if (window.geojsonLayer) {
+          window.geojsonLayer.resetStyle(layer)
+        }
+      }, 3000)
+    }
+  })
+
+
+  document.getElementById("funFact").addEventListener("click", () => {
+    const funFactContainer = document.getElementById("funFactContainer")
+    const funFactText = document.getElementById("funFactText")
+
+
+    // Generate a random fun fact about the country
+    const funFacts = [
+      `${country.name.common} ${country.independent ? "is an independent country" : "is not fully independent"}.`,
+      `The internet domain for ${country.name.common} is .${country.tld ? country.tld[0] : "unknown"}.`,
+      `${country.name.common} ${country.landlocked ? "has no coastline" : "has access to the ocean"}.`,
+      `${country.name.common} is ${country.area ? formatArea(country.area) : "unknown"} in size.`,
+      `${country.name.common} ${country.unMember ? "is a member of the United Nations" : "is not a member of the United Nations"}.`,
+      `People in ${country.name.common} drive on the ${country.car?.side || "right"} side of the road.`,
+      `${country.name.common} has ${country.timezones?.length || 1} time ${country.timezones?.length === 1 ? "zone" : "zones"}.`,
+    ]
+
+
+    // Display a random fun fact
+    const randomFact = funFacts[Math.floor(Math.random() * funFacts.length)]
+    funFactText.textContent = randomFact
+    funFactContainer.classList.remove("hidden")
+  })
+}
+
+
+// Format area in a child-friendly way
+function formatArea(area) {
+  if (area < 1000) {
+    return `${area} square kilometers (very small)`
+  } else if (area < 100000) {
+    return `${Math.round(area / 1000)} thousand square kilometers (small)`
+  } else if (area < 1000000) {
+    return `${Math.round(area / 1000)} thousand square kilometers (medium sized)`
+  } else {
+    return `${Math.round(area / 1000000)} million square kilometers (very big)`
   }
-})
+}
+
 
 
 

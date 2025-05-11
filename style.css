@@ -1076,6 +1076,7 @@ body.game-active .game-modal-content {
   justify-content: center;
 }
 
+/* Add animation to homepage features */
 .feature-item {
   display: flex;
   align-items: center;
@@ -1084,51 +1085,168 @@ body.game-active .game-modal-content {
   padding: 10px 15px;
   border-radius: var(--border-radius);
   font-size: 0.9rem;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.feature-item:hover {
+  transform: translateY(-5px);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .feature-item i {
   color: var(--primary-color);
   font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.feature-item:hover i {
+  transform: scale(1.2);
 }
 
 /* Learn Mode Styles */
+/* Learn Mode Styles - Child-friendly version */
 .learn-modal-content {
   max-width: 700px;
 }
 
-.learn-tabs {
+.learn-container {
   display: flex;
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: 20px;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.learn-tab-button {
+.learn-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.learn-header h3 {
+  font-size: 1.5rem;
+  margin: 0;
+  color: var(--primary-color);
+}
+
+.learn-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.learn-flag-container {
   flex: 1;
-  padding: 10px;
-  background: none;
-  border: none;
-  border-bottom: 3px solid transparent;
-  color: var(--text-light);
+  min-width: 200px;
+  text-align: center;
+}
+
+.learn-flag {
+  width: 100%;
+  max-width: 250px;
+  height: auto;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  border: 3px solid var(--primary-color);
+}
+
+.learn-flag-caption {
+  margin-top: 10px;
   font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.learn-tab-button:hover {
   color: var(--primary-color);
 }
 
-.learn-tab-button.active {
-  color: var(--primary-color);
-  border-bottom-color: var(--primary-color);
+.learn-facts {
+  flex: 2;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.learn-tab-content {
+.learn-fact {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background-color: var(--bg-color);
+  padding: 15px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  transition: transform 0.3s ease;
+}
+
+.learn-fact:hover {
+  transform: translateY(-3px);
+}
+
+.learn-fact i {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  width: 30px;
+  text-align: center;
+}
+
+.learn-fact p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.learn-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.fun-fact-container {
+  background-color: #fff3cd;
+  border-left: 4px solid #ffc107;
+  padding: 15px;
+  border-radius: var(--border-radius);
+  margin-top: 15px;
+}
+
+.fun-fact-container p {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #856404;
+}
+
+.hidden {
   display: none;
 }
 
-.learn-tab-content.active {
-  display: block;
+/* Responsive adjustments for learn mode */
+@media (max-width: 768px) {
+  .learn-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .learn-content {
+    flex-direction: column;
+  }
+
+  .learn-flag {
+    max-width: 200px;
+  }
+
+  .learn-actions {
+    flex-direction: column;
+  }
+}
+
+/* Dark theme adjustments for learn mode */
+.dark-theme .learn-fact {
+  background-color: var(--bg-light);
+}
+
+.dark-theme .fun-fact-container {
+  background-color: rgba(255, 193, 7, 0.1);
+  border-left: 4px solid #ffc107;
+}
+
+.dark-theme .fun-fact-container p {
+  color: #ffc107;
 }
 
 /* Flashcards */
@@ -1282,6 +1400,16 @@ body.game-active .game-modal-content {
   .flashcard-back #flashcard-answer {
     font-size: 1.2rem;
   }
+}
+
+/* Add animation to the Enter Map button */
+.homepage .primary-button {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.homepage .primary-button:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 

@@ -80,6 +80,24 @@ function initMapApp() {
     return countryMap[country] || country
   }
 
+  // Add this function to the map.js file, inside the initMapApp function,
+  // right after the standardizeCountryName function
+
+  function correctCountryName(country) {
+    const countryCorrections = {
+      "Guinea Bissau": "Guinea-Bissau",
+      "Democratic Republic of the Congo": "Democratic Republic of Congo",
+      "Republic of the Congo": "Republic of Congo",
+      "United States": "United States of America",
+      "Côte d'Ivoire": "Ivory Coast",
+      "Timor-Leste": "East Timor",
+      Czechia: "Czech Republic",
+      "North Macedonia": "Macedonia",
+      Eswatini: "Swaziland",
+    }
+    return countryCorrections[country] || country
+  }
+
   // Fetch country data for learning mode
   fetch("https://restcountries.com/v3.1/all")
     .then((response) => {
@@ -169,7 +187,7 @@ function initMapApp() {
     layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup()
   }
 
-  // Make these functions available globally
+  // Then modify the showCountryInfo function to use this correction
   window.showCountryInfo = async (countryName) => {
     const countryInfoModal = document.getElementById("countryInfoModal")
     const countryInfoTitle = document.getElementById("countryInfoTitle")
@@ -183,9 +201,12 @@ function initMapApp() {
     countryInfoModal.style.display = "block"
 
     try {
+      // Use the corrected country name for the API
+      const correctedName = correctCountryName(countryName)
+
       // Fetch country details from REST Countries API
       const response = await fetch(
-        `https://restcountries.com/v3.1/name/${encodeURIComponent(countryName)}?fullText=true`,
+        `https://restcountries.com/v3.1/name/${encodeURIComponent(correctedName)}?fullText=true`,
       )
       const data = await response.json()
       const country = data[0]
@@ -248,6 +269,11 @@ function initMapApp() {
       return "Error fetching summary."
     }
   }
+
+  // Make the map object and layers available globally
+  window.map = map
+  window.geojsonLayer = geojsonLayer
+  window.countryLayers = countryLayers
 
   // === Game ===
   const gameModal = document.getElementById("gameModal")
