@@ -152,6 +152,21 @@ function initMapApp() {
     `
     layer.unbindPopup()
     layer.bindPopup(popupContent, { maxWidth: 300 }).openPopup()
+
+    // Dispatch event for bucket list integration
+    setTimeout(() => {
+      const popup = layer.getPopup()
+      if (popup && popup._contentNode) {
+        document.dispatchEvent(
+          new CustomEvent("countryPopupCreated", {
+            detail: {
+              countryName: countryName,
+              popupElement: popup._contentNode,
+            },
+          }),
+        )
+      }
+    }, 10)
   }
 
   // Make these functions available globally
@@ -529,5 +544,6 @@ document.addEventListener("DOMContentLoaded", () => {
     })
   }
 })
+
 
 

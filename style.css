@@ -19,6 +19,25 @@
   --transition: all 0.3s ease;
 }
 
+/* Add these dark theme variables at the top of the file, after the :root block */
+.dark-theme {
+  --primary-color: #4dabf7;
+  --primary-dark: #339af0;
+  --secondary-color: #51cf66;
+  --secondary-dark: #40c057;
+  --danger-color: #ff6b6b;
+  --danger-dark: #fa5252;
+  --text-color: #e9ecef;
+  --text-light: #ced4da;
+  --text-lighter: #adb5bd;
+  --bg-color: #212529;
+  --bg-light: #343a40;
+  --bg-dark: #1a1d20;
+  --border-color: #495057;
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  --shadow-strong: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -978,4 +997,192 @@ body.game-active .game-modal-content {
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
 }
+
+/* Add this at the end of the file */
+/* Dark mode specific adjustments */
+.dark-theme .app-header {
+  background-color: var(--bg-light);
+}
+
+.dark-theme .sidebar,
+.dark-theme .news-section,
+.dark-theme .modal-content,
+.dark-theme .homepage-content {
+  background-color: var(--bg-light);
+}
+
+.dark-theme .news-article,
+.dark-theme .comparison-column {
+  background-color: var(--bg-color);
+}
+
+.dark-theme .search-bar {
+  background-color: var(--bg-dark);
+}
+
+.dark-theme .search-bar input {
+  color: var(--text-color);
+}
+
+.dark-theme .loading-overlay {
+  background-color: rgba(33, 37, 41, 0.8);
+  color: var(--text-color);
+}
+
+.dark-theme .country-popup-buttons button {
+  background-color: var(--primary-color);
+}
+
+.dark-theme .country-popup-buttons button:hover {
+  background-color: var(--primary-dark);
+}
+
+.dark-theme #visited-list li:hover {
+  background-color: var(--bg-dark);
+}
+
+.dark-theme .homepage {
+  background: linear-gradient(135deg, #1864ab, #862e9c);
+}
+
+/* Improve contrast for dark mode */
+.dark-theme .leaflet-container {
+  background-color: #343a40;
+}
+
+.dark-theme .coordinates-popup {
+  color: #212529;
+}
+
+/* Add these styles at the end of the file */
+
+/* Sidebar tabs */
+.sidebar-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 15px;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 10px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--text-light);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.tab-button:hover {
+  color: var(--primary-color);
+}
+
+.tab-button.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+/* Bucket list */
+#bucket-list {
+  flex-grow: 1;
+  margin-bottom: 15px;
+  overflow-y: auto;
+}
+
+#bucket-list li {
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#bucket-list li:last-child {
+  border-bottom: none;
+}
+
+#bucket-list li:hover {
+  background-color: var(--bg-color);
+}
+
+.remove-bucket-item {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--text-lighter);
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-bucket-item:hover {
+  color: var(--danger-color);
+  background-color: rgba(231, 76, 60, 0.1);
+}
+
+/* Bucket list button in popup */
+.in-bucket-list {
+  background-color: var(--secondary-color) !important;
+}
+
+.in-bucket-list:hover {
+  background-color: var(--secondary-dark) !important;
+}
+
+/* Tab content */
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+/* Improved homepage */
+.homepage-content {
+  position: relative;
+  overflow: hidden;
+}
+
+.homepage-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 20px;
+  justify-content: center;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 10px 15px;
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+}
+
+.feature-item i {
+  color: var(--primary-color);
+  font-size: 1.2rem;
+}
+
+/* Theme toggle button */
+#themeToggleBtn {
+  transition: var(--transition);
+}
+
+.dark-theme #themeToggleBtn i.fa-sun {
+  color: #fcc419;
+}
+
+#themeToggleBtn i.fa-moon {
+  color: #5c7cfa;
+}
+
+
 
