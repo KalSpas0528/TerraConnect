@@ -2,18 +2,6 @@
 
 document.addEventListener("DOMContentLoaded", initLearnMode);
 
-document.addEventListener("countrySelected", (e) => {
-  if (e.detail && e.detail.country) {
-    const country = window.countryData?.find(
-      (c) => c.name.common === e.detail.country
-    );
-    if (country) {
-      openLearnModal();
-      showCountryInLearnMode(country);
-    }
-  }
-});
-
 function initLearnMode() {
   const learnBtn = document.getElementById("learnModeBtn");
   const learnModal = document.getElementById("learnModal");
@@ -225,13 +213,15 @@ function updateLearnUI(country) {
 }
 
 function zoomToCountryOnMap(country) {
-  if (!window.map || !window.countryLayers) return;
+  if (!window.map || !window.countryLayers || !window.geojsonLayer) return;
   const layer = window.countryLayers[country.name.common];
-  if (layer && layer.getBounds) {
+  if (layer && typeof layer.getBounds === "function") {
     window.geojsonLayer.resetStyle();
-    window.map.fitBounds(layer.getBounds(), { padding: [40, 40], maxZoom: 5 });
-    layer.setStyle({ color: "#e74c3c", weight: 3, fillOpacity: 0.4 });
-    setTimeout(() => window.geojsonLayer.resetStyle(layer), 2500);
+    window.map.fitBounds(layer.getBounds(), { padding: [50, 50], maxZoom: 6 });
+    layer.setStyle({ color: "#e74c3c", weight: 3, fillOpacity: 0.5 });
+    setTimeout(() => {
+      if (window.geojsonLayer && layer) window.geojsonLayer.resetStyle(layer);
+    }, 3000);
   }
 }
 
