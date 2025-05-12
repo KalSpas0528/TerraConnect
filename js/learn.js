@@ -58,7 +58,6 @@ function initLearnMode() {
     }, 500);
   }
 
-  // === DRAG FUNCTIONALITY ===
   function makeModalDraggable(element) {
     let pos1 = 0,
       pos2 = 0,
@@ -189,15 +188,28 @@ function updateLearnUI(country) {
           </div>
           ${
             country.languages
-              ? `
-          <div class="learn-fact">
-            <i class="fas fa-comments"></i>
-            <p>They speak <strong>${Object.values(country.languages).join(", ")}</strong> there.</p>
-          </div>`
+              ? `<div class="learn-fact">
+                  <i class="fas fa-comments"></i>
+                  <p>They speak <strong>${Object.values(country.languages).join(", ")}</strong> there.</p>
+                </div>`
               : ""
           }
         </div>
       </div>
     </div>
   `;
+
+  document.getElementById("exploreNewCountry").addEventListener("click", () => {
+    const next = getRandomCountries(1);
+    if (next.length > 0) showCountryInLearnMode(next[0]);
+  });
+}
+
+function initExploreMode() {
+  const countries = getRandomCountries(1);
+  if (countries.length > 0) {
+    showCountryInLearnMode(countries[0]);
+  } else {
+    console.warn("No country data available for Learn Mode.");
+  }
 }
