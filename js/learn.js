@@ -2,6 +2,18 @@
 
 document.addEventListener("DOMContentLoaded", initLearnMode);
 
+document.addEventListener("countrySelected", (e) => {
+  if (e.detail && e.detail.country) {
+    const country = window.countryData?.find(
+      (c) => c.name.common === e.detail.country
+    );
+    if (country) {
+      openLearnModal();
+      showCountryInLearnMode(country);
+    }
+  }
+});
+
 function initLearnMode() {
   const learnBtn = document.getElementById("learnModeBtn");
   const learnModal = document.getElementById("learnModal");
@@ -155,7 +167,6 @@ function getRandomCountries(count) {
 function showCountryInLearnMode(country) {
   if (!country) return;
   updateLearnUI(country);
-  zoomToCountryOnMap(country);
 }
 
 function updateLearnUI(country) {
@@ -167,6 +178,9 @@ function updateLearnUI(country) {
         <h3>Let's Explore: ${country.name.common}</h3>
         <button id="exploreNewCountry" class="primary-button">
           <i class="fas fa-globe"></i> Explore Another Country
+        </button>
+        <button id="showOnMap" class="secondary-button">
+          <i class="fas fa-map"></i> Show on Map
         </button>
       </div>
       <div class="learn-content">
@@ -204,16 +218,20 @@ function updateLearnUI(country) {
     const next = getRandomCountries(1);
     if (next.length > 0) showCountryInLearnMode(next[0]);
   });
+
+  document.getElementById("showOnMap").addEventListener("click", () => {
+    zoomToCountryOnMap(country);
+  });
 }
 
 function zoomToCountryOnMap(country) {
   if (!window.map || !window.countryLayers) return;
   const layer = window.countryLayers[country.name.common];
   if (layer && layer.getBounds) {
-    window.map.fitBounds(layer.getBounds(), { maxZoom: 6 });
     window.geojsonLayer.resetStyle();
-    layer.setStyle({ color: "#f39c12", weight: 4, fillOpacity: 0.3 });
-    setTimeout(() => window.geojsonLayer.resetStyle(layer), 3000);
+    window.map.fitBounds(layer.getBounds(), { padding: [40, 40], maxZoom: 5 });
+    layer.setStyle({ color: "#e74c3c", weight: 3, fillOpacity: 0.4 });
+    setTimeout(() => window.geojsonLayer.resetStyle(layer), 2500);
   }
 }
 
