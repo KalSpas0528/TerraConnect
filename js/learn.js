@@ -212,10 +212,22 @@ function updateLearnUI(country) {
   });
 }
 
+function standardizeCountryName(name) {
+  const map = {
+    "United States of America": "United States",
+    USA: "United States",
+    UK: "United Kingdom",
+    "Russian Federation": "Russia",
+    "South Korea": "Korea, Republic of",
+    "North Korea": "Korea, Democratic People's Republic of"
+  };
+  return map[name] || name;
+}
+
 function zoomToCountryOnMap(country) {
   if (!window.map || !window.geojsonLayer || !window.countryLayers) return;
 
-  const name = country.name.common;
+  const name = standardizeCountryName(country.name.common);
   const matchedKey = Object.keys(window.countryLayers).find(
     (key) => key.toLowerCase().trim() === name.toLowerCase().trim()
   );
