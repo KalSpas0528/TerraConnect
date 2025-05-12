@@ -155,6 +155,7 @@ function getRandomCountries(count) {
 function showCountryInLearnMode(country) {
   if (!country) return;
   updateLearnUI(country);
+  zoomToCountryOnMap(country);
 }
 
 function updateLearnUI(country) {
@@ -203,6 +204,17 @@ function updateLearnUI(country) {
     const next = getRandomCountries(1);
     if (next.length > 0) showCountryInLearnMode(next[0]);
   });
+}
+
+function zoomToCountryOnMap(country) {
+  if (!window.map || !window.countryLayers) return;
+  const layer = window.countryLayers[country.name.common];
+  if (layer && layer.getBounds) {
+    window.map.fitBounds(layer.getBounds(), { maxZoom: 6 });
+    window.geojsonLayer.resetStyle();
+    layer.setStyle({ color: "#f39c12", weight: 4, fillOpacity: 0.3 });
+    setTimeout(() => window.geojsonLayer.resetStyle(layer), 3000);
+  }
 }
 
 function initExploreMode() {
