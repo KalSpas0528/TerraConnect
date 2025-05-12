@@ -213,15 +213,22 @@ function updateLearnUI(country) {
 }
 
 function zoomToCountryOnMap(country) {
-  if (!window.map || !window.countryLayers || !window.geojsonLayer) return;
-  const layer = window.countryLayers[country.name.common];
+  if (!window.map || !window.geojsonLayer || !window.countryLayers) return;
+
+  const name = country.name.common;
+  const matchedKey = Object.keys(window.countryLayers).find(
+    (key) => key.toLowerCase().trim() === name.toLowerCase().trim()
+  );
+
+  const layer = matchedKey ? window.countryLayers[matchedKey] : null;
+
   if (layer && typeof layer.getBounds === "function") {
     window.geojsonLayer.resetStyle();
-    window.map.fitBounds(layer.getBounds(), { padding: [50, 50], maxZoom: 6 });
-    layer.setStyle({ color: "#e74c3c", weight: 3, fillOpacity: 0.5 });
-    setTimeout(() => {
-      if (window.geojsonLayer && layer) window.geojsonLayer.resetStyle(layer);
-    }, 3000);
+    layer.setStyle({ color: "#e74c3c", weight: 4, fillOpacity: 0.4 });
+    window.map.fitBounds(layer.getBounds(), { padding: [60, 60], maxZoom: 5 });
+    setTimeout(() => window.geojsonLayer.resetStyle(layer), 3000);
+  } else {
+    console.warn("Could not find map layer for:", name);
   }
 }
 
