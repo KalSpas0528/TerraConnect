@@ -155,6 +155,7 @@ function getRandomCountries(count) {
 function showCountryInLearnMode(country) {
   if (!country) return;
   updateLearnUI(country);
+  injectMiniMap(country);
 }
 
 function updateLearnUI(country) {
@@ -167,15 +168,13 @@ function updateLearnUI(country) {
         <button id="exploreNewCountry" class="primary-button">
           <i class="fas fa-globe"></i> Explore Another Country
         </button>
-        <button id="showOnMap" class="secondary-button">
-          <i class="fas fa-map"></i> Show on Map
-        </button>
       </div>
       <div class="learn-content">
         <div class="learn-flag-container">
           <img src="${country.flags.png}" alt="Flag of ${country.name.common}" class="learn-flag">
           <p class="learn-flag-caption">This is the flag of ${country.name.common}!</p>
         </div>
+        <div id="miniMapContainer" class="mini-map"></div>
         <div class="learn-facts">
           <div class="learn-fact">
             <i class="fas fa-map-marker-alt"></i>
@@ -206,10 +205,46 @@ function updateLearnUI(country) {
     const next = getRandomCountries(1);
     if (next.length > 0) showCountryInLearnMode(next[0]);
   });
+}
 
-  document.getElementById("showOnMap").addEventListener("click", () => {
-    zoomToCountryOnMap(country);
-  });
+function injectMiniMap(country) {
+  const container = document.getElementById("miniMapContainer");
+  if (!container || !window.L || !window.countryLayers) return;
+  container.innerHTML = "";
+
+  const rawName = country.name.common;
+  const name = normalizeForGeoJson(rawName);
+  const matchedKey = Object.keys(window.countryLayers).find(
+    (key) => key.toLowerCase().trim() === name.toLowerCase().trim()
+  );
+
+  const layer = matchedKey ? window.countryLayers[matchedKey] : null;
+  if (!layer) return;
+
+  const bounds = layer.getBounds();
+  const center = bounds.getCenter();
+
+  const miniMap = window.L.map(container, {
+    attributionControl: false,
+    zoomControl: false,
+    dragging: false,
+    scrollWheelZoom: false,
+    doubleClickZoom: false,
+    boxZoom: false,
+    keyboard: false,
+    tap: false,
+    touchZoom: false,
+  }).setView(center, 4);
+
+  window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 10,
+  }).addTo(miniMap);
+
+  window.L.geoJSON(layer.toGeoJSON(), {
+    style: { color: "#e74c3c", weight: 2, fillOpacity: 0.3 },
+  }).addTo(miniMap);
+
+  miniMap.fitBounds(bounds);
 }
 
 function normalizeForGeoJson(name) {
