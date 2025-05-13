@@ -212,14 +212,17 @@ function updateLearnUI(country) {
   });
 }
 
-function standardizeCountryName(name) {
+function normalizeForGeoJson(name) {
   const map = {
-    "United States of America": "United States",
-    USA: "United States",
-    UK: "United Kingdom",
-    "Russian Federation": "Russia",
-    "South Korea": "Korea, Republic of",
-    "North Korea": "Korea, Democratic People's Republic of"
+    "Guinea Bissau": "Guinea-Bissau",
+    "Democratic Republic of the Congo": "Democratic Republic of Congo",
+    "Republic of the Congo": "Republic of Congo",
+    "United States": "United States of America",
+    "Côte d'Ivoire": "Ivory Coast",
+    "Timor-Leste": "East Timor",
+    Czechia: "Czech Republic",
+    "North Macedonia": "Macedonia",
+    Eswatini: "Swaziland",
   };
   return map[name] || name;
 }
@@ -227,7 +230,9 @@ function standardizeCountryName(name) {
 function zoomToCountryOnMap(country) {
   if (!window.map || !window.geojsonLayer || !window.countryLayers) return;
 
-  const name = standardizeCountryName(country.name.common);
+  const rawName = country.name.common;
+  const name = normalizeForGeoJson(rawName);
+
   const matchedKey = Object.keys(window.countryLayers).find(
     (key) => key.toLowerCase().trim() === name.toLowerCase().trim()
   );
