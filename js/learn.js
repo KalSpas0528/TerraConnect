@@ -155,7 +155,6 @@ function getRandomCountries(count) {
 function showCountryInLearnMode(country) {
   if (!country) return;
   updateLearnUI(country);
-  injectMiniMap(country);
 }
 
 function updateLearnUI(country) {
@@ -170,11 +169,11 @@ function updateLearnUI(country) {
         </button>
       </div>
       <div class="learn-content">
+        <div id="miniMap" class="learn-mini-map"></div>
         <div class="learn-flag-container">
           <img src="${country.flags.png}" alt="Flag of ${country.name.common}" class="learn-flag">
           <p class="learn-flag-caption">This is the flag of ${country.name.common}!</p>
         </div>
-        <div id="miniMapContainer" class="mini-map"></div>
         <div class="learn-facts">
           <div class="learn-fact">
             <i class="fas fa-map-marker-alt"></i>
@@ -205,26 +204,28 @@ function updateLearnUI(country) {
     const next = getRandomCountries(1);
     if (next.length > 0) showCountryInLearnMode(next[0]);
   });
+
+  setTimeout(() => {
+    renderMiniMap(country);
+  }, 10);
 }
 
-function injectMiniMap(country) {
-  const container = document.getElementById("miniMapContainer");
-  if (!container || !window.L || !window.countryLayers) return;
-  container.innerHTML = "";
+function renderMiniMap(country) {
+  if (!window.countryLayers || !window.L) return;
 
   const rawName = country.name.common;
   const name = normalizeForGeoJson(rawName);
+
   const matchedKey = Object.keys(window.countryLayers).find(
     (key) => key.toLowerCase().trim() === name.toLowerCase().trim()
   );
 
   const layer = matchedKey ? window.countryLayers[matchedKey] : null;
-  if (!layer) return;
 
-  const bounds = layer.getBounds();
-  const center = bounds.getCenter();
+  const miniMapElem = document.getElementById("miniMap");
+  if (!miniMapElem) return;
 
-  const miniMap = window.L.map(container, {
+  const miniMap = L.map(miniMapElem, {
     attributionControl: false,
     zoomControl: false,
     dragging: false,
@@ -233,18 +234,22 @@ function injectMiniMap(country) {
     boxZoom: false,
     keyboard: false,
     tap: false,
-    touchZoom: false,
-  }).setView(center, 4);
+  });
 
-  window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 10,
   }).addTo(miniMap);
 
-  window.L.geoJSON(layer.toGeoJSON(), {
-    style: { color: "#e74c3c", weight: 2, fillOpacity: 0.3 },
-  }).addTo(miniMap);
+  if (layer && typeof layer.getBounds === "function") {
+    const geo = layer.feature;
+    const highlightLayer = L.geoJSON(geo, {
+      style: { color: "#e74c3c", weight: 3, fillOpacity: 0.4 },
+    }).addTo(miniMap);
 
-  miniMap.fitBounds(bounds);
+    miniMap.fitBounds(highlightLayer.getBounds());
+  } else {
+    miniMap.setView([20, 0], 2);
+  }
 }
 
 function normalizeForGeoJson(name) {
@@ -260,28 +265,6 @@ function normalizeForGeoJson(name) {
     Eswatini: "Swaziland",
   };
   return map[name] || name;
-}
-
-function zoomToCountryOnMap(country) {
-  if (!window.map || !window.geojsonLayer || !window.countryLayers) return;
-
-  const rawName = country.name.common;
-  const name = normalizeForGeoJson(rawName);
-
-  const matchedKey = Object.keys(window.countryLayers).find(
-    (key) => key.toLowerCase().trim() === name.toLowerCase().trim()
-  );
-
-  const layer = matchedKey ? window.countryLayers[matchedKey] : null;
-
-  if (layer && typeof layer.getBounds === "function") {
-    window.geojsonLayer.resetStyle();
-    layer.setStyle({ color: "#e74c3c", weight: 4, fillOpacity: 0.4 });
-    window.map.fitBounds(layer.getBounds(), { padding: [60, 60], maxZoom: 5 });
-    setTimeout(() => window.geojsonLayer.resetStyle(layer), 3000);
-  } else {
-    console.warn("Could not find map layer for:", name);
-  }
 }
 
 function initExploreMode() {
